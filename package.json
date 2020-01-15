@@ -1,0 +1,26 @@
+{
+  "name": "market_analyser",
+  "version": "1.0.0",
+  "description": "Analyse stocks and markets",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aeakoski/market_analyser.git"
+  },
+  "keywords": [
+    "market"
+  ],
+  "author": "Alexander Koski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aeakoski/market_analyser/issues"
+  },
+  "homepage": "https://github.com/aeakoski/market_analyser#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "node-fetch": "^2.6.0"
+  }
+}
