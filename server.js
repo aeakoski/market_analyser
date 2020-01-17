@@ -1,31 +1,19 @@
 const fetch = require('node-fetch')
 const fs = require('fs')
+const Brain = require('./brain');
 
-const base = 'https://www.alphavantage.co/'
-var apikey
 
-fs.readFile('api.key', {encoding: 'utf-8'}, function (err, data) {
-  if (!err) {
-    var apikey = data
-  } else {
-    console.log(err)
-  }
-})
+async function main () {
+  var Brain1 = new Brain.Brain()
 
-fs.readFile('symbols', {encoding: 'utf-8'}, function (err, data) {
-  if (!err) {
-    console.log(data.split('\n'))
-  } else {
-    console.log(err)
-  }
-})
+  let p1 = Brain1.readApiKey().then(function (done) {done})
+  let p2 = Brain1.readSymbols().then(function (done) {done})
+  await p1
+  await p2
 
-const query = (functionName, symbol, interval = '5min') => fetch(
-    base + '/query?' + new URLSearchParams({ 'function': functionName, symbol, interval, apikey })
-)
+  Brain1.getStockData()
 
-query('TIME_SERIES_MONTHLY', 'CMG')
-    .then(response => response.json())
-    .then(data => {
-      // console.log(data)
-    })
+
+}
+
+main()
