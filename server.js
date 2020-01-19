@@ -14,6 +14,7 @@ async function main () {
   let p3 = Brain1.getStockData()
   await p3
 
+  Brain1.plot()
 
 }
 

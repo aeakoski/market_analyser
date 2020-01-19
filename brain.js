@@ -1,7 +1,7 @@
 const fs = require('fs')
 const Stock = require('./stock');
 const fetch = require('node-fetch')
-
+var PlotlibPlot = require('nodeplotlib')
 
 
 module.exports = {
@@ -9,28 +9,38 @@ module.exports = {
     var apikey = ''
     var symbols = []
     var stocks = []
+    var expStocks = []
 
     this.print = function () {
         return "apikey: " + apikey
     }
 
-    this.getStockData = function () {
+    this.getStockData = async function () {
       // TODO Add promise
       const base = 'https://www.alphavantage.co/'
+      noFinishedJobs = 0
+      let p = new Promise(
+          function(resolve, reject){
+            for (let i = 0; i < stocks.length; i++) {
+              let stocksymbol = stocks[i].getSymbol()
+              const query = (functionName, symbol) => fetch(base + '/query?' + 'function=TIME_SERIES_DAILY&symbol=' + stocksymbol + '&outputsize=full&apikey=' + apikey)
 
-      for (let i = 0; i < stocks.length; i++) {
-        let stocksymbol = stocks[i].getSymbol()
-        const query = (functionName, symbol) => fetch(base + '/query?' + 'function=TIME_SERIES_DAILY&symbol=' + stocksymbol + '&outputsize=full&apikey=' + apikey)
+              query('TIME_SERIES_MONTHLY', 'CMG')
+                 .then(response => response.json())
+                 .then(data => {
+                   stocks[i].setQoutes(data["Time Series (Daily)"])
+                   stocks[i].calculateHighLow()
+                   stocks[i].calculateDerivative()
+                   noFinishedJobs++
+                   if (noFinishedJobs == stocks.length) {
+                     resolve(true)
+                   }
+                 })
+            }
+          }
+      )
+      return p
 
-        query('TIME_SERIES_MONTHLY', 'CMG')
-           .then(response => response.json())
-           .then(data => {
-             stocks[i].setQoutes(data["Time Series (Daily)"])
-             stocks[i].calculateHighLow()
-             stocks[i].calculateDerivative()
-
-           })
-      }
     }
 
     this.readApiKey = function () {
@@ -51,6 +61,13 @@ module.exports = {
 
     }
 
+    this.plot = function () {
+      for (let i = 0; i < stocks.length; i++) {
+        let real = {x: stocks[i].getDays(), y: stocks[i].getPrices(), type:'scatter'}
+        let cax = {x: stocks[i].getDays(), y: stocks[i].getModel(), type:'scatter'}
+        PlotlibPlot.plot([real, cax]);
+      }
+    }
 
     this.readSymbols = async function () {
       let p = new Promise(

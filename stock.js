@@ -1,96 +1,63 @@
 // import regression from 'regression';
-const regression = require('regression');
+const regression = require('regression')
+
+
 module.exports = {
 
   Stock: function (s) {
-    var symbol = s
-    var qoutes = {}
-    var thirtyHigh = 0
-    var thirtyLow = 999999999999999999999
+    this.symbol = s
+    this.qoutes = {}
+    this.thirtyHigh = 0
+    this.thirtyLow = 999999999999999999999
+    this.prices = []
+    this.model = []
+    this.days = []
 
-    this.setQoutes = function (q) {
-      qoutes = q
-    }
-    this.getSymbol = function(){
-      return symbol
-    }
+    this.setQoutes = function (q) { this.qoutes = q }
+
+    this.getSymbol = function(){ return this.symbol }
+    this.getPrices = function(){ return this.prices}
+    this.getDays = function(){ return this.days }
+    this.getModel = function(){ return this.model }
 
     this.calculateHighLow = function () {
-      console.log("Qoutes length: " + Object.keys(qoutes).length)
       var now = new Date()
       for (let i = 0; i <= 30; i++ ) {
         var date_ = new Date().setDate(now.getDate() - i)
         let fd = this.formatDate(date_)
-        if (qoutes[fd] === undefined){
+        if (this.qoutes[fd] === undefined){
           continue
         }
 
-        if (thirtyHigh < parseFloat(qoutes[fd]["2. high"])) {
-          thirtyHigh = parseFloat(qoutes[fd]["2. high"])
+        if (this.thirtyHigh < parseFloat(this.qoutes[fd]["2. high"])) {
+          this.thirtyHigh = parseFloat(this.qoutes[fd]["2. high"])
         }
-        if (thirtyLow > parseFloat(qoutes[fd]["3. low"])) {
-          thirtyLow = parseFloat(qoutes[fd]["3. low"])
+        if (this.thirtyLow > parseFloat(this.qoutes[fd]["3. low"])) {
+          this.thirtyLow = parseFloat(this.qoutes[fd]["3. low"])
         }
       }
 
-      console.log(symbol);
-      console.log(thirtyHigh);
-      console.log(thirtyLow);
-      console.log(qoutes["2020-01-16"]);
+      console.log(this.symbol);
+      console.log(this.thirtyHigh);
+      console.log(this.thirtyLow);
     }
 
-
-  this.exponential = function(data) {
-    let options = {
-      precision:5,
-      order:5
-    }
-    const sum = [0, 0, 0, 0, 0, 0];
-
-    for (let n = 0; n < data.length; n++) {
-      if (data[n][1] !== null) {
-        sum[0] += data[n][0];
-        sum[1] += data[n][1];
-        sum[2] += data[n][0] * data[n][0] * data[n][1];
-        sum[3] += data[n][1] * Math.log(data[n][1]);
-        sum[4] += data[n][0] * data[n][1] * Math.log(data[n][1]);
-        sum[5] += data[n][0] * data[n][1];
-      }
-    }
-
-    const denominator = ((sum[1] * sum[2]) - (sum[5] * sum[5]));
-    const a = Math.exp(((sum[2] * sum[3]) - (sum[5] * sum[4])) / denominator);
-    const b = ((sum[1] * sum[4]) - (sum[5] * sum[3])) / denominator;
-    const coeffA = Math.round(a, options.precision);
-    console.log("B: " + b);
-    const coeffB = b //Math.round(b, options.precision);
-    const predict = x => ([
-      Math.round(x, options.precision),
-      Math.round(coeffA * Math.exp(coeffB * x), options.precision),
-    ]);
-
-    const points = data.map(point => predict(point[0]));
-
-    return {
-      points,
-      predict,
-      equation: [coeffA, coeffB],
-      string: `y = ${coeffA}e^(${coeffB}x)`
-      //r2: Math.round(determinationCoefficient(data, points), options.precision),
-    };
-  }
 
     this.calculateDerivative = function () {
       var now = new Date()
-      stockData = []
+      let stockData = []
+      let x = []
+      let y = []
       timeWindow = 365 * 5
       for (let i = 0; i <= timeWindow; i++ ) {
         var date_ = new Date().setDate(now.getDate() - i)
         let fd = this.formatDate(date_)
-        if (qoutes[fd] === undefined){
+        if (this.qoutes[fd] === undefined){
           continue
         }
-        stockData.push([timeWindow - i, parseFloat(qoutes[fd]["2. high"])])
+        x.push(timeWindow - i)
+        y.push(parseFloat(this.qoutes[fd]["2. high"]))
+        stockData.push([timeWindow - i, parseFloat(this.qoutes[fd]["2. high"])])
       }
 
       const result = regression.exponential(stockData, {precision:10})
@@ -101,7 +68,9 @@ module.exports = {
       console.log("Derivative today: " + derivative);
       console.log("");
 
-      // TODO Plot graph and derivative
+      this.days = x
+      this.prices = y
+      this.model = x.map(_x => result.equation[0]*2.71828**(_x*result.equation[1]))
     }
 
     this.formatDate = function (date) {

@@ -22,6 +22,7 @@
   "dependencies": {
     "express": "^4.16.2",
     "node-fetch": "^2.6.0",
+    "nodeplotlib": "^0.6.5",
     "regression": "^2.0.1"
   }
 }
