@@ -11,7 +11,8 @@ async function main () {
   await p1
   await p2
 
-  Brain1.getStockData()
+  let p3 = Brain1.getStockData()
+  await p3
 
 
 }

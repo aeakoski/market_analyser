@@ -21,6 +21,7 @@
   "homepage": "https://github.com/aeakoski/market_analyser#readme",
   "dependencies": {
     "express": "^4.16.2",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "regression": "^2.0.1"
   }
 }

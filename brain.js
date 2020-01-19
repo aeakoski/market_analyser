@@ -20,13 +20,15 @@ module.exports = {
 
       for (let i = 0; i < stocks.length; i++) {
         let stocksymbol = stocks[i].getSymbol()
-        const query = (functionName, symbol) => fetch(base + '/query?' + 'function=TIME_SERIES_DAILY&symbol=' + stocksymbol + '&apikey=' + apikey)
+        const query = (functionName, symbol) => fetch(base + '/query?' + 'function=TIME_SERIES_DAILY&symbol=' + stocksymbol + '&outputsize=full&apikey=' + apikey)
 
         query('TIME_SERIES_MONTHLY', 'CMG')
            .then(response => response.json())
            .then(data => {
              stocks[i].setQoutes(data["Time Series (Daily)"])
              stocks[i].calculateHighLow()
+             stocks[i].calculateDerivative()
+
            })
       }
     }
