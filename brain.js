@@ -16,7 +16,6 @@ module.exports = {
     }
 
     this.getStockData = async function () {
-      // TODO Add promise
       const base = 'https://www.alphavantage.co/'
       noFinishedJobs = 0
       let p = new Promise(
@@ -28,10 +27,18 @@ module.exports = {
               query('TIME_SERIES_MONTHLY', 'CMG')
                  .then(response => response.json())
                  .then(data => {
+                   noFinishedJobs++
+                   if (!data.hasOwnProperty("Time Series (Daily)")) {
+                     if (data.hasOwnProperty("Note:")) {
+                       console.log(data['Note:']);
+                     }
+                     console.log("ERROR");
+                     resolve(true)
+                     return
+                   }
                    stocks[i].setQoutes(data["Time Series (Daily)"])
                    stocks[i].calculateHighLow()
                    stocks[i].calculateDerivative()
-                   noFinishedJobs++
                    if (noFinishedJobs == stocks.length) {
                      resolve(true)
                    }
@@ -63,7 +70,7 @@ module.exports = {
 
     this.plot = function () {
       for (let i = 0; i < stocks.length; i++) {
-        let real = {x: stocks[i].getDays(), y: stocks[i].getPrices(), type:'scatter'}
+        let real = {x: stocks[i].getDays(), y: stocks[i].getPrices(), name:stocks[i].getSymbol(), type:'scatter'}
         let cax = {x: stocks[i].getDays(), y: stocks[i].getModel(), type:'scatter'}
         PlotlibPlot.plot([real, cax]);
       }

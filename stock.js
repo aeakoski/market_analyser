@@ -25,7 +25,7 @@ module.exports = {
       for (let i = 0; i <= 30; i++ ) {
         var date_ = new Date().setDate(now.getDate() - i)
         let fd = this.formatDate(date_)
-        if (this.qoutes[fd] === undefined){
+        if (!this.qoutes.hasOwnProperty(fd)){
           continue
         }
 
