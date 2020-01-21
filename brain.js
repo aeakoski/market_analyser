@@ -1,101 +1,22 @@
-const fs = require('fs')
-const Stock = require('./stock');
-const fetch = require('node-fetch')
-var PlotlibPlot = require('nodeplotlib')
+const MA_50_200 = require('./strategies/MA_50_200')
 
 
 module.exports = {
   Brain: function () {
-    var apikey = ''
-    var symbols = []
-    var stocks = []
-    var expStocks = []
+    this.strategies = []
 
-    this.print = function () {
-        return "apikey: " + apikey
+    this.initStrategies = async function(){
+      let _MA_50_200_1 = new MA_50_200.MA_50_200()
+      let p = _MA_50_200_1.init()
+      await p
     }
 
-    this.getStockData = async function () {
-      const base = 'https://www.alphavantage.co/'
-      noFinishedJobs = 0
-      let p = new Promise(
-          function(resolve, reject){
-            for (let i = 0; i < stocks.length; i++) {
-              let stocksymbol = stocks[i].getSymbol()
-              const query = (functionName, symbol) => fetch(base + '/query?' + 'function=TIME_SERIES_DAILY&symbol=' + stocksymbol + '&outputsize=full&apikey=' + apikey)
+    this.newDay = function(){}
 
-              query('TIME_SERIES_MONTHLY', 'CMG')
-                 .then(response => response.json())
-                 .then(data => {
-                   noFinishedJobs++
-                   if (!data.hasOwnProperty("Time Series (Daily)")) {
-                     if (data.hasOwnProperty("Note:")) {
-                       console.log(data['Note:']);
-                     }
-                     console.log("ERROR");
-                     resolve(true)
-                     return
-                   }
-                   stocks[i].setQoutes(data["Time Series (Daily)"])
-                   stocks[i].calculateHighLow()
-                   stocks[i].calculateDerivative()
-                   if (noFinishedJobs == stocks.length) {
-                     resolve(true)
-                   }
-                 })
-            }
-          }
-      )
-      return p
-
-    }
-
-    this.readApiKey = function () {
-      let p = new Promise(
-        function(resolve, reject){
-          fs.readFile('api.key', {encoding: 'utf-8'}, function (err, data) {
-            if (!err) {
-              apikey = data
-              resolve(data)
-            } else {
-              console.log(err)
-              reject(err)
-            }
-          })
-        }
-      )
-      return p
-
-    }
-
-    this.plot = function () {
-      for (let i = 0; i < stocks.length; i++) {
-        let real = {x: stocks[i].getDays(), y: stocks[i].getPrices(), name:stocks[i].getSymbol(), type:'scatter'}
-        let cax = {x: stocks[i].getDays(), y: stocks[i].getModel(), type:'scatter'}
-        PlotlibPlot.plot([real, cax]);
+    this.saveAndQuit = function(){
+      for (let i = 0; i < this.strategies.length; i++) {
+        this.strategies[i].writePortfolioToFile()
       }
-    }
-
-    this.readSymbols = async function () {
-      let p = new Promise(
-        function (resolve, reject) {
-          fs.readFile('symbols', {encoding: 'utf-8'}, function (err, data) {
-            if (!err) {
-              symbols = data.split('\n')
-              symbols.pop()
-              for (var i = 0; i < symbols.length; i++) {
-                stocks[stocks.length] = new Stock.Stock(symbols[i])
-              }
-              resolve(stocks)
-              // Notify
-            } else {
-              console.log(err)
-              reject("Ohno")
-            }
-          })
-        }
-      )
-      return p
     }
   }
 }
