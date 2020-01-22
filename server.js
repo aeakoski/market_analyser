@@ -4,8 +4,10 @@ const Brain = require('./brain');
 
 async function main () {
   var _Brain = new Brain.Brain()
-  _Brain.initStrategies()
-  _Brain.saveAndQuit()
+  let init = _Brain.initStrategies(this)
+  await init
+  //_Brain.saveAndQuit()
+  _Brain.newDay()
 }
 
 main()
