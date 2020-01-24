@@ -36,9 +36,30 @@ module.exports = {
       console.log("New day");
       for (let i = 0; i < this.strategies.length; i++) {
         this.strategies[i].calculateTrends()
+        //console.log(this.strategies[i].stillOnWishList());
         // TODO Call visualizer
         // TODO Call broker
       }
+    }
+
+    this.addNewStock = function(symbol){
+      if (fs.readdirSync('./data').includes(symbol)) {
+        console.log("Exists");
+        for (let i = 0; i < this.strategies.length; i++) {
+          this.strategies[i].addToWishList(symbol)
+        }
+      } else {
+        console.log("Not");
+      }
+
+      return 1
+    }
+
+    this.deleteStock = function(symbol){
+      for (let i = 0; i < this.strategies.length; i++) {
+        this.strategies[i].deleteFromWishList(symbol)
+      }
+      return 1
     }
 
     this.saveAndQuit = function(){

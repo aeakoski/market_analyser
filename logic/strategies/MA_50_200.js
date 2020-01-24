@@ -16,7 +16,8 @@ module.exports = {
       var _this = this
       let p = new Promise(
         function (resolve, reject) {
-          fs.readFile('strategies/portfolio/MA_50_200.portf', {encoding: 'utf-8'}, function (err, data) {
+          console.log();
+          fs.readFile(__dirname + '/portfolio/MA_50_200.portf', {encoding: 'utf-8'}, function (err, data) {
             if (err) {
               console.log(err)
               reject("Ohno")
@@ -47,6 +48,35 @@ module.exports = {
         }
       )
       return p
+    }
+
+    this.stillOnWishList = function(){
+      let iOwn = this.owns.map(x => x.symbol)
+      return this.symbols_wishlist.filter(x => iOwn.indexOf(x) === -1)
+    }
+
+    this.addToWishList = function(symbol){
+      const index = this.symbols_wishlist.indexOf(symbol.toUpperCase());
+      if (index > -1) {
+        console.log(this.symbols_wishlist)
+        return false
+      } else {
+        this.symbols_wishlist.push(symbol.toUpperCase())
+        console.log(this.symbols_wishlist)
+        return true
+      }
+    }
+
+    this.deleteFromWishList = function(symbol){
+      console.log(symbol);
+      const index = this.symbols_wishlist.indexOf(symbol.toUpperCase());
+      if (index > -1) {
+        this.symbols_wishlist.splice(index, 1);
+        console.log(this.symbols_wishlist)
+        return true
+      }
+      console.log(this.symbols_wishlist)
+      return false
     }
 
     this.writePortfolioToFile = function(){
@@ -106,10 +136,28 @@ module.exports = {
           this.owns[i].trend = "DOWN"
           console.log("Tred DOWN - SELL");
         }
-        console.log("");
+        console.log(" ");
       }
 
+      console.log("\n\nNew prospects\n\n");
+
+      for (let i = 0; i < this.stillOnWishList().length; i++) {
+        _50 = this.getAVG(this.stillOnWishList()[i], 30)
+        _200 = this.getAVG(this.stillOnWishList()[i], 120)
+        console.log(this.stillOnWishList()[i]);
+        console.log(_50);
+        console.log(_200);
+        if (_50 > _200) {
+          console.log("Trend - Percent " + (_50-_200)/_50);
+          console.log("Tred UP - BUY");
+        } else {
+          console.log("Trend - Percent " + (_200-_50)/_200);
+          console.log("Tred DOWN - SELL");
+        }
+        console.log("");
+
     }
+  }
 
     this.print = function(){
       console.log(this.name);

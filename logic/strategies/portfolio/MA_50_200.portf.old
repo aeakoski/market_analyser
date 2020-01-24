@@ -1,0 +1,53 @@
+{
+  "name": "MA_50_200",
+  "balanceLeft": 100000,
+  "risk": 0.1,
+  "symbols_wishlist": [
+    "AAPL",
+    "DIS",
+    "GOOGL",
+    "BP",
+    "V",
+    "AXP",
+    "CMG",
+    "MSFT",
+    "BRK.A",
+    "MMM",
+    "HON",
+    "BBY",
+    "C",
+    "MA"
+  ],
+  "owns": [
+    {
+      "symbol": "MSFT",
+      "stocks": [
+        {
+          "symbol": "MSFT",
+          "boughtPrice": 161.31,
+          "boughtDate": "2020-01-20"
+        },
+        {
+          "symbol": "MSFT",
+          "boughtPrice": 141.32,
+          "boughtDate": "2019-08-10"
+        }
+      ]
+    },
+    {
+      "symbol": "AAPL",
+      "stocks": [
+        {
+          "symbol": "AAPL",
+          "boughtPrice": 291.34,
+          "boughtDate": "2020-01-20"
+        },
+        {
+          "symbol": "AAPL",
+          "boughtPrice": 309.33,
+          "boughtDate": "2019-08-10"
+        }
+      ]
+    }
+  ]
+}
