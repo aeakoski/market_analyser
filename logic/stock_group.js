@@ -7,6 +7,8 @@ module.exports = {
     this.symbol = s
     this.stocks = sl
     this.positiveTrend = undefined
+    this._50AVG = -1
+    this._200AVG = -1
 
     this.getSymbol = function(){ return this.symbol }
     this.getOriginalValue = function(){ return 1337 }

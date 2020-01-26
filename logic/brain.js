@@ -1,5 +1,7 @@
 const MA_50_200 = require('./strategies/MA_50_200')
 var fs = require('fs')
+const request = require('request');
+
 
 module.exports = {
   Brain: function () {
@@ -32,14 +34,30 @@ module.exports = {
 
     }
 
-    this.newDay = function(){
-      console.log("New day");
+    this.newDay = function(q){
+      if (Object.keys(q).length == 0) {
+        console.log("Today is holiday");
+        return
+      }
       for (let i = 0; i < this.strategies.length; i++) {
-        this.strategies[i].calculateTrends()
+        this.strategies[i].calculateTrends(q)
         //console.log(this.strategies[i].stillOnWishList());
         // TODO Call visualizer
         // TODO Call broker
       }
+    }
+
+    this.getWishlist = function(){
+      let re = {}
+      for (let i = 0; i < this.strategies.length; i++) {
+        re[this.strategies[i].symbols_wishlist] = this.strategies[i].symbols_wishlist
+      }
+      let res = []
+      for (var k in re) {
+          res.push(re[k]);
+      }
+
+      return res[0]
     }
 
     this.addNewStock = function(symbol){
@@ -69,25 +87,14 @@ module.exports = {
     }
 
     this.getQoutes = function(symbol, backlog){
-      resObj = {}
-      let now = new Date()
-      let foundDates = 0
-      if (fs.readdirSync('./data').includes(symbol)) {
-        all_qoutes = JSON.parse(fs.readFileSync("./data/" + symbol, options={encoding:"utf-8"}))
-        // console.log("%j", all_qoutes);
-        for (let i = 0; i < 365*10; i++) {
-          var dateToFetch = new Date().setDate(now.getDate() - i)
-          if(all_qoutes[this.formatDate(dateToFetch)] === undefined){ continue }
-          foundDates++
-          resObj[this.formatDate(dateToFetch)] = all_qoutes[this.formatDate(dateToFetch)]
-          if(foundDates == backlog){ break }
-        }
-        if (foundDates !== backlog) { throw "Think better, 2342" }
-        return resObj
-      } else {
-        console.log("Need to implement API call for " + symbol);
-      }
+      return new Promise(function(resolve, reject){
+        // Contact broker
+        console.log("Contacting: http://localhost:4001/backlog?symbol=" + symbol + '&days=' + backlog);
+        request('http://localhost:4001/backlog?symbol=' + symbol + '&days=' + backlog, { json: true }, (err, res, body) => {
+          resolve(body)
+        })
 
+      })
     }
   }
 }

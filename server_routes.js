@@ -2,7 +2,13 @@
 module.exports = function(app, _Brain) {
   app.route('/api/newday')
     .post(function(req, res){
+      _Brain.newDay(req.body)
+      res.send("OK")
+    })
 
+  app.route('/api/wishlist')
+    .get(function(req, res){
+      res.json({wishlist:_Brain.getWishlist()})
     })
 
   app.route('/api/stock')
@@ -21,14 +27,4 @@ module.exports = function(app, _Brain) {
         res.send("NO")
       }
     })
-  //
-  // app.route('/api/deletestock')
-  //   .delete(function(req, res){
-  //     console.log("Trying to delete")
-  //     if (_Brain.deleteStock(req.query.symbol.toUpperCase())) {
-  //       res.send("OK")
-  //     } else {
-  //       res.send("NO")
-  //     }
-  //   });
 };
