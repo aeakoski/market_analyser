@@ -4,8 +4,8 @@ const StockGroup = require('../stock_group');
 const fetch = require('node-fetch')
 
 module.exports = {
-  MA_50_200: function (b) {
-    this.name = ""
+  MA_50_200: function (n, b) {
+    this.name = n
     this.balanceLeft = 0
     this.risk = 0.1
     this.symbols_wishlist = []
@@ -63,6 +63,22 @@ module.exports = {
       return this.symbols_wishlist.filter(x => iOwn.indexOf(x) === -1)
     }
 
+    this.getRegularQoutes = function(symbol){
+      let arr = []
+      let dates = Object.keys(this.owns[symbol].qoutes_400).sort().reverse().slice(0,30)
+
+      for(_date of dates){
+          arr.push({
+            date: _date,
+            value: parseFloat(this.owns[symbol].qoutes_400[_date]["4. close"])
+          })
+      }
+      return arr
+    }
+
+    this.get50Qoutes = function(s){return this.owns[s]._50AVG}
+    this.get200Qoutes = function(s){return this.owns[s]._200AVG}
+
     this.addToWishList = function(symbol){
       const index = this.symbols_wishlist.indexOf(symbol.toUpperCase());
       if (index > -1) {
@@ -105,6 +121,21 @@ module.exports = {
       });
     }
 
+    this.getQoutes = function(symbol, days){
+      var _this = this
+      return new Promise(function(resolve, reject){
+        _this.Brain.getQoutes(symbol, days).then(function(qoutes, err){
+          let vals = []
+          if (days != Object.keys(qoutes).length) {
+            console.log(days + " vs " + Object.keys(qoutes).length);
+            throw "Broker is broken. Did not get enough days"
+          }
+          vals = qoutes
+          resolve({symbol:symbol, values:vals})
+        })
+      })
+    }
+
     this._getAVG = function(symbol, days){
       var _this = this
       return new Promise(function(resolve, reject){
@@ -121,80 +152,102 @@ module.exports = {
         })
       })
     }
-
-    var arrAvg = function(arr, new_value){
-      arr.pop()
-      arr.push(new_value)
-      //console.log("new_value " + new_value);
+    var arrAvg = function(arr){
       let sum = 0.0
       for(x of arr){
         sum = sum + parseFloat(x)
       }
       //console.log(sum + " / " + arr.length);
       //console.log(sum / arr.length);
-      return {
-        arr: arr,
-        avg:(sum / arr.length)
-      }
+      return sum / arr.length
+    }
+
+    var newArrAvg = function(_arr, new_value, date){
+      let arr = _arr
+
+      arr.shift()
+      console.log(arr[arr.length-1].value - ((new_value-arr[arr.length-1].value) / (arr.length + 1)));
+      arr.push({
+        date: date,
+        value:arr[arr.length-1].value - ((new_value-arr[arr.length-1].value) / (arr.length + 1))
+      })
+      return arr
     }
 
     this.setSG = function(sgObj){
       this.owns = sgObj
     }
 
+    this.calculate50Average = function(symbol){
+      //for (symbol of Object.keys(this.owns)){
+        let aa = Object.keys(this.owns[symbol].qoutes_400).sort().reverse()
+        for (var i = 0; i < 30; i++) {
+          let avgList = []
+          for (d of aa.slice(i, i+50)){
+            avgList.push(parseFloat(this.owns[symbol].qoutes_400[d]["4. close"]))
+          }
+          this.owns[symbol]._50AVG.push({date: aa[i], value:arrAvg(avgList) })
+        }
+        this.owns[symbol]._50AVG.reverse()
+      //}
+    }
+
+    this.calculate200Average = function(symbol){
+      //for (symbol of Object.keys(this.owns)){
+        let aa = Object.keys(this.owns[symbol].qoutes_400).sort().reverse()
+        for (var i = 0; i < 30; i++) {
+          let avgList = []
+          for (d of aa.slice(i, i+200)){
+            avgList.push(parseFloat(this.owns[symbol].qoutes_400[d]["4. close"]))
+          }
+          this.owns[symbol]._200AVG.push({date: aa[i], value:arrAvg(avgList) })
+        }
+        this.owns[symbol]._200AVG.reverse()
+      //}
+    }
+
     this.calculateTrends = async function(q){
       // Check for an earlier AVG. IF not exists, call for one
-
       var _this = this
       let waitinglist = []
-      //console.log("calculateTrends");
-      //console.log(Object.keys(this.owns));
-
-      //console.log(JSON.stringify(this.owns, null, 2));
-
-
+      let gettingQoutes = 0
       for (i of Object.keys(this.owns)) {
-        //console.log(this.owns[i]._200AVG);
-        if (this.owns[i]._50AVG == -1 || this.owns[i]._200AVG == -1) {
-          waitinglist.push(this._getAVG(this.owns[i].symbol, 50).then(function(data){
-            _this.owns[i]._50AVG = data
-          }))
-          waitinglist.push(this._getAVG(this.owns[i].symbol, 200).then(function(data){
-            _this.owns[i]._200AVG = data
+        if (this.owns[i].qoutes_400 == -1) {
+          console.log("Fetching for: " + i);
+          waitinglist.push(this.getQoutes(this.owns[i].symbol, 400).then(function(result){
+
+          //gettingQoutes = this.getQoutes(this.owns[i].symbol, 400).then(function(symbol, data){
+            _this.owns[result.symbol].qoutes_400 = result.values
+            console.log("Data got for " + result.symbol);
+            console.log(Object.keys(result.values).length);
+
+            _this.calculate50Average(result.symbol)
+            _this.calculate200Average(result.symbol)
+            //console.log(symbol + " " + Object.keys(_this.owns[symbol].qoutes_400).length + " qoutes");
           }))
         }
       }
 
-      for (let i = 0; i < waitinglist.length; i++) {
-        await waitinglist[i]
+      for (halt of waitinglist){
+        await halt
       }
 
-      //console.log("Trends");
-
       for (i of Object.keys(this.owns)) {
-        // TODO Add todays qoute!
-        // console.log(this.owns[i]._50AVG);
-        let l200 = this.owns[i]._200AVG
-
-        //console.log(this.owns[i].symbol);
-
-
-        let _50 = arrAvg(this.owns[i]._50AVG, q[i]["4. close"])
-        this.owns[i]._50AVG = _50.arr
-
-        let _200 = arrAvg(this.owns[i]._200AVG,  q[i]["4. close"])
-        this.owns[i]._200AVG = _200.arr
-
-        //console.log(_50.avg);
-        //console.log(_200.avg);
-        if (_50.avg > _200.avg) {
+        
+        this.owns[i].qoutes_400[q.date] = q[i]
+        this.owns[i]._50AVG = newArrAvg(this.owns[i]._50AVG, q[i]["4. close"], q.date)
+        console.log(this.owns[i]._50AVG.map(x => x.value));
+        this.owns[i]._200AVG = newArrAvg(this.owns[i]._200AVG,  q[i]["4. close"], q.date)
+        let _50 = this.owns[i]._50AVG[this.owns[i]._50AVG.length - 1].value
+        let _200 = this.owns[i]._200AVG[this.owns[i]._200AVG.length - 1].value
+        if (_50 > _200) {
           //console.log("Trend - Percent " + (_50.avg-_200.avg)/_50.avg);
           this.owns[i].trend = "UP"
-          console.log("Tred UP - BUY " + (_50.avg - _200.avg));
+          console.log("Tred UP - BUY " + (_50 + ", " + _200));
         } else {
           //console.log("Trend - Percent " + (_200.avg-_50.avg)/_200.avg);
           this.owns[i].trend = "DOWN"
-          console.log("Tred DOWN - SELL " + (_200.avg - _50.avg));
+          console.log("Tred DOWN - SELL " + (_200 + ", " + _50));
         }
         console.log(" ");
       }

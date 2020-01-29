@@ -40,41 +40,29 @@ const request = require('request');
     exports.getBacklog = function(symbol, backlog){
       return new Promise(function(resolve, reject){
         resObj = {}
-        //console.log("Start fetching for: " + formatDate(yesterday) + " " + backlog);
-        //let now = new Date(yesterday)
+
         let dateToFetch = moment(yesterday)
         dateToFetch.subtract(1, "days")
         let foundDates = 0
-        //console.log("Start fetching for: " + dateToFetch.format("YYYY-MM-DD") + " " + backlog);
         if (fs.readdirSync('./data').includes(symbol)) {
           all_qoutes = JSON.parse(fs.readFileSync("./data/" + symbol, options={encoding:"utf-8"}))
-          // console.log("%j", all_qoutes);
-
           let dayCounter = 0
           backlog = parseInt(backlog)
+
           while(foundDates < backlog && dayCounter<365 * 10){
-          //for (let i = 0; i < 365*10; i++) {
             dateToFetch.subtract(1, 'days')
-
-            //var dateToFetch = now.setDate(-1)
-            //console.log(formatDate(dateToFetch));
-            //console.log(dateToFetch.format("YYYY-MM-DD"));
-
             dayCounter++
             if(all_qoutes[dateToFetch.format("YYYY-MM-DD")] == undefined){
-              //console.log("Failed for: " + dateToFetch.format("YYYY-MM-DD"));
-            //if(all_qoutes[formatDate(dateToFetch)] === undefined){
               continue
-              }
+            }
             foundDates++
-            //resObj[formatDate(dateToFetch)] = all_qoutes[formatDate(dateToFetch)]
             resObj[dateToFetch.format("YYYY-MM-DD")] = all_qoutes[dateToFetch.format("YYYY-MM-DD")]
             if(foundDates == backlog){ break }
             now = dateToFetch
           }
+          
           console.log("Left loop");
 
-          //console.log("Stoped at date " + formatDate(dateToFetch));
           console.log("Stoped at date " + dateToFetch.format("YYYY-MM-DD"));
           if (foundDates != backlog) { throw "You requested fo fetch more qoutes than exist " + foundDates + " " + backlog  }
           resolve(resObj)
@@ -91,7 +79,7 @@ const request = require('request');
         //yesterday.setDate(dayCounter);
         //console.log(formatDate(yesterday));
         console.log("Fetching qoutes for: " + yesterday.format("YYYY-MM-DD"));
-
+        var requestDate = yesterday.format("YYYY-MM-DD")
         request('http://localhost:4000/api/wishlist', { json: true }, (err, res, body) => {
           if (err) { return console.log(err) }
           // Get stock info for todays date
@@ -115,6 +103,7 @@ const request = require('request');
             }
           }
           console.log("Todays qoutes is");
+          todaysQoutes.date = requestDate
           console.log(JSON.stringify(todaysQoutes, null, 2));
           resolve(todaysQoutes)
         })

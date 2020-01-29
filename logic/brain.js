@@ -25,7 +25,7 @@ module.exports = {
     this.initStrategies = async function(){
       _this = this
       return new Promise(async function(resolve, reject){
-        let _MA_50_200_1 = new MA_50_200.MA_50_200(_this)
+        let _MA_50_200_1 = new MA_50_200.MA_50_200("MA_50_200", _this)
         let p = _MA_50_200_1.init()
         _this.strategies.push(_MA_50_200_1)
         await p
@@ -35,7 +35,7 @@ module.exports = {
     }
 
     this.newDay = function(q){
-      if (Object.keys(q).length == 0) {
+      if (Object.keys(q).length == 1) {
         console.log("Today is holiday");
         return
       }
@@ -45,6 +45,22 @@ module.exports = {
         // TODO Call visualizer
         // TODO Call broker
       }
+    }
+
+    this.getPlotData = function(){
+      res = {}
+      for (strategy of this.strategies){
+        res[strategy.name] = {}
+        for (symbol of Object.keys(strategy.owns)){
+          res[strategy.name][symbol] = {
+            regular:strategy.getRegularQoutes(symbol),
+            _50:strategy.get50Qoutes(symbol),
+            _200:strategy.get200Qoutes(symbol)
+          }
+
+        }
+      }
+      return res
     }
 
     this.getWishlist = function(){

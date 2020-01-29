@@ -3,7 +3,8 @@
   "balanceLeft": 100000,
   "risk": 0.1,
   "symbols_wishlist": [
-    "MSFT"
+  "AAPL",
+  "MA"
   ],
   "owns": [
 
