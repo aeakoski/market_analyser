@@ -94,9 +94,9 @@ export class TabComponent implements OnInit {
      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
    }
 
-    let ymin = 99999
-    let ymax = 0
 
+   let ymin = 99999
+   let ymax = 0
     for (let _c of conf){
       if (this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value}) < ymin) {
         ymin = this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value})//d3.min(result[symbol][_c.type], function(d){return d.value})
@@ -106,6 +106,8 @@ export class TabComponent implements OnInit {
         ymax = this.maxi(this.stockGroups[symbol][_c.type], function(d) { return +d.value; })//d3.max(result[symbol][_c.type], function(d) { return +d.value; })
       }
     }
+
+    console.log(symbol + ": " + ymin + "->" + ymax )
 
    for (let c of conf){
      // let data = this.stockGroups[symbol][c.type]
@@ -142,6 +144,7 @@ export class TabComponent implements OnInit {
   }
   updateLines(){
     console.log("updateChart")
+    console.log("---------------------------------------------")
 
     let conf =  [{
               type: "regular",
@@ -155,11 +158,10 @@ export class TabComponent implements OnInit {
             },
           ]
 
-    let ymin = 99999
-    let ymax = 0
 
     for (let symbol of this.stockGroupsKeys){
-
+      let ymin = 99999
+      let ymax = 0
       for (let _c of conf){
         if (this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value}) < ymin) {
           ymin = this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value})//d3.min(result[symbol][_c.type], function(d){return d.value})
@@ -169,6 +171,8 @@ export class TabComponent implements OnInit {
           ymax = this.maxi(this.stockGroups[symbol][_c.type], function(d) { return +d.value; })//d3.max(result[symbol][_c.type], function(d) { return +d.value; })
         }
       }
+
+      console.log(symbol + ": " + ymin + "->" + ymax )
 
       let svg = d3.select("#plot_" + symbol).transition();
       for (let c of conf){
