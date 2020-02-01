@@ -150,10 +150,6 @@ module.exports = {
         _this.Brain.getQoutes(symbol, days).then(function(qoutes, err){
           if(err){ console.log("Connection error"); reject(err); return}
           let vals = []
-          // if (days != Object.keys(qoutes).length) {
-          //   console.log(days + " vs " + Object.keys(qoutes).length);
-          //   throw "Broker is broken. Did not get enough days"
-          // }
           vals = qoutes
           resolve({symbol:symbol, values:vals})
         })
@@ -186,15 +182,17 @@ module.exports = {
       return sum / arr.length
     }
 
-    var newArrAvg = function(_arr, newValue, date){
+    this.newArrAvg = function(_arr, newValue, date, averageOver){
       let arrLatestVals = _arr[_arr.length-1].derivedFrom
       let arr = _arr
-      arrLatestVals.shift()
+      if (arrLatestVals.length >= averageOver) {
+        arrLatestVals.shift()
+      }
+      if (arr.length >= this.daysToOfferInView) {
+        arr.shift()
+      }
+
       arrLatestVals.push(newValue)
-
-
-      arr.shift()
-      // console.log(arr[arr.length-1].value + ((new_value - arr[arr.length - 1].value) / (arr.length + 1)));
       arr.push({
         date: date,
         value: arrAvg(arrLatestVals),
@@ -248,8 +246,8 @@ module.exports = {
 
         if(q[symbol] == undefined){ continue }
         console.log(symbol);
-        this.owns[symbol]._50AVG = newArrAvg(this.owns[symbol]._50AVG, q[symbol]["4. close"], q.date)
-        this.owns[symbol]._200AVG = newArrAvg(this.owns[symbol]._200AVG,  q[symbol]["4. close"], q.date)
+        this.owns[symbol]._50AVG = this.newArrAvg(this.owns[symbol]._50AVG, q[symbol]["4. close"], q.date, 50)
+        this.owns[symbol]._200AVG = this.newArrAvg(this.owns[symbol]._200AVG,  q[symbol]["4. close"], q.date, 200)
 
         //console.log(this.owns[i]._50AVG.map(x => x.value));
 

@@ -6,7 +6,7 @@ const request = require('request');
     var dayCounter = 1
     //var yesterday = Date.parse('01 Jan 2008 00:00:00 GMT')
     //var yesterday = new Date('January 01, 2008 23:15:30');
-    var yesterday = moment('2008-01-01')
+    var yesterday = moment('2008-03-01')
     //moment().subtract(7, 'days');
 
 
