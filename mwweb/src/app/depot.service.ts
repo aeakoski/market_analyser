@@ -51,7 +51,6 @@ export class DepotService {
         this._getStrategies().subscribe({
           next: result => {
             this.strategies_object = result;
-            console.log(result);
             this.status = true;
             this.subject.next(this.strategies_object);
 

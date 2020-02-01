@@ -11,9 +11,9 @@ import * as d3 from 'd3';
 })
 export class TabComponent implements OnInit {
   @ViewChild('chart', {static: false}) private chartContainer: ElementRef;
-  margin: any = {top: 10, right: 30, bottom: 30, left: 60}
-  width: any = 460 - this.margin.left - this.margin.right
-  height: any = 400 - this.margin.top - this.margin.bottom;
+  margin: any = {top: 0, right: 0, bottom: 30, left: 45}
+  width: any = 250 - this.margin.left - this.margin.right
+  height: any = 200 - this.margin.top - this.margin.bottom;
   title: string;
   stockGroupsKeys: any;
   stockGroups: any;
@@ -66,10 +66,10 @@ export class TabComponent implements OnInit {
               color: "steelblue"
             },{
               type: "_50",
-              color: "#e41a1c"
+              color: "#4daf4a"
             },{
               type: "_200",
-              color: "#4daf4a"
+              color: "#e41a1c"
             },
           ]
 
@@ -77,8 +77,12 @@ export class TabComponent implements OnInit {
    if(this.svgs[symbol] == undefined){
      let newDiv = document.createElement("div");
      newDiv.setAttribute("id", "plot_" + symbol);
+     newDiv.setAttribute("class", "plot");
+     let newP = document.createElement("p")
+     newP.setAttribute("style", "text-align: center;")
      let plotTitle = document.createTextNode(symbol)
-     newDiv.appendChild(plotTitle)
+     newP.appendChild(plotTitle)
+     newDiv.appendChild(newP)
      document.getElementById("plotArea").appendChild(newDiv)
      //this.width = element.offsetWidth - this.margin.left - this.margin.right;
      //this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
@@ -89,8 +93,6 @@ export class TabComponent implements OnInit {
      .append("g")
      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
    }
-
-
 
     let ymin = 99999
     let ymax = 0
