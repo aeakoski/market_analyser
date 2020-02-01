@@ -162,14 +162,19 @@ module.exports = {
       return sum / arr.length
     }
 
-    var newArrAvg = function(_arr, new_value, date){
+    var newArrAvg = function(_arr, newValue, date){
+      let arrLatestVals = _arr[_arr.length-1].derivedFrom
       let arr = _arr
+      arrLatestVals.shift()
+      arrLatestVals.push(newValue)
+
 
       arr.shift()
-      console.log(arr[arr.length-1].value - ((new_value-arr[arr.length-1].value) / (arr.length + 1)));
+      // console.log(arr[arr.length-1].value + ((new_value - arr[arr.length - 1].value) / (arr.length + 1)));
       arr.push({
         date: date,
-        value:arr[arr.length-1].value - ((new_value-arr[arr.length-1].value) / (arr.length + 1))
+        value: arrAvg(arrLatestVals),
+        derivedFrom: arrLatestVals
       })
       return arr
     }
@@ -181,12 +186,12 @@ module.exports = {
     this.calculate50Average = function(symbol){
       //for (symbol of Object.keys(this.owns)){
         let aa = Object.keys(this.owns[symbol].qoutes_400).sort().reverse()
-        for (var i = 0; i < 30; i++) {
+        for (let i = 0; i < 30; i++) {
           let avgList = []
           for (d of aa.slice(i, i+50)){
             avgList.push(parseFloat(this.owns[symbol].qoutes_400[d]["4. close"]))
           }
-          this.owns[symbol]._50AVG.push({date: aa[i], value:arrAvg(avgList) })
+          this.owns[symbol]._50AVG.push({date: aa[i], value:arrAvg(avgList), derivedFrom: avgList})
         }
         this.owns[symbol]._50AVG.reverse()
       //}
@@ -195,31 +200,30 @@ module.exports = {
     this.calculate200Average = function(symbol){
       //for (symbol of Object.keys(this.owns)){
         let aa = Object.keys(this.owns[symbol].qoutes_400).sort().reverse()
-        for (var i = 0; i < 30; i++) {
+        for (let i = 0; i < 30; i++) {
           let avgList = []
           for (d of aa.slice(i, i+200)){
             avgList.push(parseFloat(this.owns[symbol].qoutes_400[d]["4. close"]))
           }
-          this.owns[symbol]._200AVG.push({date: aa[i], value:arrAvg(avgList) })
+          this.owns[symbol]._200AVG.push({date: aa[i], value:arrAvg(avgList), derivedFrom: avgList})
         }
         this.owns[symbol]._200AVG.reverse()
       //}
     }
 
     this.calculateTrends = async function(q){
-      // Check for an earlier AVG. IF not exists, call for one
       var _this = this
       let waitinglist = []
       let gettingQoutes = 0
-      for (i of Object.keys(this.owns)) {
+      for (let i of Object.keys(this.owns)) {
+        // Check for an earlier AVG. IF not exists, call for one
         if (this.owns[i].qoutes_400 == -1) {
           console.log("Fetching for: " + i);
           waitinglist.push(this.getQoutes(this.owns[i].symbol, 400).then(function(result){
 
           //gettingQoutes = this.getQoutes(this.owns[i].symbol, 400).then(function(symbol, data){
             _this.owns[result.symbol].qoutes_400 = result.values
-            console.log("Data got for " + result.symbol);
-            console.log(Object.keys(result.values).length);
+            console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
 
             _this.calculate50Average(result.symbol)
             _this.calculate200Average(result.symbol)
@@ -232,21 +236,26 @@ module.exports = {
         await halt
       }
 
-      for (i of Object.keys(this.owns)) {
-        
-        this.owns[i].qoutes_400[q.date] = q[i]
-        this.owns[i]._50AVG = newArrAvg(this.owns[i]._50AVG, q[i]["4. close"], q.date)
-        console.log(this.owns[i]._50AVG.map(x => x.value));
-        this.owns[i]._200AVG = newArrAvg(this.owns[i]._200AVG,  q[i]["4. close"], q.date)
-        let _50 = this.owns[i]._50AVG[this.owns[i]._50AVG.length - 1].value
-        let _200 = this.owns[i]._200AVG[this.owns[i]._200AVG.length - 1].value
+      for (symbol of Object.keys(this.owns)) {
+
+        // Add the new dates qoutes to the big collection of all stockgroups qoutes
+        this.owns[symbol].qoutes_400[q.date] = q[symbol]
+
+        // Update the AVG lists for the stockgroup
+        this.owns[symbol]._50AVG = newArrAvg(this.owns[symbol]._50AVG, q[symbol]["4. close"], q.date)
+        this.owns[symbol]._200AVG = newArrAvg(this.owns[symbol]._200AVG,  q[symbol]["4. close"], q.date)
+
+        //console.log(this.owns[i]._50AVG.map(x => x.value));
+
+        let _50 = this.owns[symbol]._50AVG[this.owns[symbol]._50AVG.length - 1].value
+        let _200 = this.owns[symbol]._200AVG[this.owns[symbol]._200AVG.length - 1].value
         if (_50 > _200) {
           //console.log("Trend - Percent " + (_50.avg-_200.avg)/_50.avg);
-          this.owns[i].trend = "UP"
+          this.owns[symbol].trend = "UP"
           console.log("Tred UP - BUY " + (_50 + ", " + _200));
         } else {
           //console.log("Trend - Percent " + (_200.avg-_50.avg)/_200.avg);
-          this.owns[i].trend = "DOWN"
+          this.owns[symbol].trend = "DOWN"
           console.log("Tred DOWN - SELL " + (_200 + ", " + _50));
         }
         console.log(" ");

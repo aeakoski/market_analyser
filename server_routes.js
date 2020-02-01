@@ -1,5 +1,6 @@
 'use strict';
 module.exports = function(app, _Brain) {
+
   app.route('/api/newday')
     .post(function(req, res){
       _Brain.newDay(req.body)
