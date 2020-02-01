@@ -1,0 +1,14 @@
+<div class="not_connected" *ngIf="!depotService.getDataDownloadStatus()">
+  <h1>Can't make bad trades if disconected from broker!</h1>
+  <img src="assets/stoinks.jpg">
+</div>
+
+<div class="connected" *ngIf="depotService.getDataDownloadStatus()">
+  <app-tabbar></app-tabbar>
+  <div class="" *ngIf="depotService.getActiveStrategy() != -1">
+    <app-tab></app-tab>
+  </div>
+  <div class="" *ngIf="!depotService.getActiveStrategy() != -1">
+    <p>Choose a strategy from above</p>
+  </div>
+</div>

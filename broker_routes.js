@@ -3,7 +3,7 @@ const BC = require('./broker_controller');
 
 module.exports = function(app) {
   app.route('/newday')
-    .put(function(req, res){
+    .get(function(req, res){
       BC.getTodaysQoutes().then(function(data, err){
         BC.pushTodaysQoutes(data)
         res.json(data)
