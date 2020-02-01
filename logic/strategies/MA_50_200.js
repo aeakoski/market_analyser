@@ -11,8 +11,9 @@ module.exports = {
     this.symbols_wishlist = []
     this.owns = {}
     this.Brain = b
+    this.daysToOfferInView = 30
 
-    this.init = async function () {
+    this.initFromFile = async function () {
       var _this = this
       let p = new Promise(
         function (resolve, reject) {
@@ -36,26 +37,41 @@ module.exports = {
 
             }
             _this.setSG(res)
-
-
-            // for (let i = 0; i < data.owns.length; i++) {
-            //   let _stocks = []
-            //   for (let j = 0; j < data.owns[i].stocks.length; j++) {
-            //     _stocks.push(
-            //       new Stock.Stock(
-            //         data.owns[i].symbol,
-            //         data.owns[i].stocks[j].boughtPrice,
-            //         data.owns[i].stocks[j].boughtDate
-            //       )
-            //     )
-            //   }
-            //   _this.owns.push(new StockGroup.StockGroup(data.owns[i].symbol, _stocks))
-            // }
             resolve(true)
           })
         }
       )
       return p
+    }
+
+    this.initFromBroker = async function() {
+      var _this = this
+
+      let waitinglist = []
+      for (let symbol of Object.keys(this.owns)) {
+        // Check for an earlier AVG. IF not exists, call for one
+        if (this.owns[symbol].qoutes_400 == -1) {
+          console.log("Fetching for: " + symbol);
+          waitinglist.push(this.getQoutes(symbol, 400).then(function(result, err){
+            if (err){
+              console.log("No connection to broker, restart Broker, then restart this app");
+              return
+            } // ConnectionError
+            //gettingQoutes = this.getQoutes(this.owns[i].symbol, 400).then(function(symbol, data){
+            _this.owns[result.symbol].qoutes_400 = result.values
+            console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
+
+            _this.calculate50Average(result.symbol)
+            _this.calculate200Average(result.symbol)
+            //console.log(symbol + " " + Object.keys(_this.owns[symbol].qoutes_400).length + " qoutes");
+          }))
+
+        }
+      }
+
+      for (halt of waitinglist){
+        await halt
+      }
     }
 
     this.stillOnWishList = function(){
@@ -65,12 +81,19 @@ module.exports = {
 
     this.getRegularQoutes = function(symbol){
       let arr = []
-      let dates = Object.keys(this.owns[symbol].qoutes_400).sort().reverse().slice(0,30)
+      let dates = Object.keys(this.owns[symbol].qoutes_400).sort().reverse().slice(0,this.daysToOfferInView)
 
       for(_date of dates){
+        let val
+        if (this.owns[symbol].qoutes_400[_date] == undefined) {
+          val = 0
+        } else {
+          val = parseFloat(this.owns[symbol].qoutes_400[_date]["4. close"])
+        }
+
           arr.push({
             date: _date,
-            value: parseFloat(this.owns[symbol].qoutes_400[_date]["4. close"])
+            value: val
           })
       }
       return arr
@@ -125,11 +148,12 @@ module.exports = {
       var _this = this
       return new Promise(function(resolve, reject){
         _this.Brain.getQoutes(symbol, days).then(function(qoutes, err){
+          if(err){ console.log("Connection error"); reject(err); return}
           let vals = []
-          if (days != Object.keys(qoutes).length) {
-            console.log(days + " vs " + Object.keys(qoutes).length);
-            throw "Broker is broken. Did not get enough days"
-          }
+          // if (days != Object.keys(qoutes).length) {
+          //   console.log(days + " vs " + Object.keys(qoutes).length);
+          //   throw "Broker is broken. Did not get enough days"
+          // }
           vals = qoutes
           resolve({symbol:symbol, values:vals})
         })
@@ -186,7 +210,7 @@ module.exports = {
     this.calculate50Average = function(symbol){
       //for (symbol of Object.keys(this.owns)){
         let aa = Object.keys(this.owns[symbol].qoutes_400).sort().reverse()
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < this.daysToOfferInView; i++) {
           let avgList = []
           for (d of aa.slice(i, i+50)){
             avgList.push(parseFloat(this.owns[symbol].qoutes_400[d]["4. close"]))
@@ -200,7 +224,7 @@ module.exports = {
     this.calculate200Average = function(symbol){
       //for (symbol of Object.keys(this.owns)){
         let aa = Object.keys(this.owns[symbol].qoutes_400).sort().reverse()
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < this.daysToOfferInView; i++) {
           let avgList = []
           for (d of aa.slice(i, i+200)){
             avgList.push(parseFloat(this.owns[symbol].qoutes_400[d]["4. close"]))
@@ -213,28 +237,7 @@ module.exports = {
 
     this.calculateTrends = async function(q){
       var _this = this
-      let waitinglist = []
       let gettingQoutes = 0
-      for (let i of Object.keys(this.owns)) {
-        // Check for an earlier AVG. IF not exists, call for one
-        if (this.owns[i].qoutes_400 == -1) {
-          console.log("Fetching for: " + i);
-          waitinglist.push(this.getQoutes(this.owns[i].symbol, 400).then(function(result){
-
-          //gettingQoutes = this.getQoutes(this.owns[i].symbol, 400).then(function(symbol, data){
-            _this.owns[result.symbol].qoutes_400 = result.values
-            console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
-
-            _this.calculate50Average(result.symbol)
-            _this.calculate200Average(result.symbol)
-            //console.log(symbol + " " + Object.keys(_this.owns[symbol].qoutes_400).length + " qoutes");
-          }))
-        }
-      }
-
-      for (halt of waitinglist){
-        await halt
-      }
 
       for (symbol of Object.keys(this.owns)) {
 
@@ -242,6 +245,9 @@ module.exports = {
         this.owns[symbol].qoutes_400[q.date] = q[symbol]
 
         // Update the AVG lists for the stockgroup
+
+        if(q[symbol] == undefined){ continue }
+        console.log(symbol);
         this.owns[symbol]._50AVG = newArrAvg(this.owns[symbol]._50AVG, q[symbol]["4. close"], q.date)
         this.owns[symbol]._200AVG = newArrAvg(this.owns[symbol]._200AVG,  q[symbol]["4. close"], q.date)
 

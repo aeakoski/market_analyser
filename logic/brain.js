@@ -26,7 +26,9 @@ module.exports = {
       _this = this
       return new Promise(async function(resolve, reject){
         let _MA_50_200_1 = new MA_50_200.MA_50_200("MA_50_200", _this)
-        let p = _MA_50_200_1.init()
+        let p = _MA_50_200_1.initFromFile().then(function(success){
+          _MA_50_200_1.initFromBroker()
+        })
         _this.strategies.push(_MA_50_200_1)
         await p
         resolve(true)
@@ -107,7 +109,12 @@ module.exports = {
         // Contact broker
         console.log("Contacting: http://localhost:4001/backlog?symbol=" + symbol + '&days=' + backlog);
         request('http://localhost:4001/backlog?symbol=' + symbol + '&days=' + backlog, { json: true }, (err, res, body) => {
-          resolve(body)
+          if (err) {
+            console.log(err);
+            reject(err)
+          } else {
+            resolve(body)
+          }
         })
 
       })

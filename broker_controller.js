@@ -46,6 +46,9 @@ const request = require('request');
         let foundDates = 0
         if (fs.readdirSync('./data').includes(symbol)) {
           all_qoutes = JSON.parse(fs.readFileSync("./data/" + symbol, options={encoding:"utf-8"}))
+          if(symbol == "V"){
+            console.log(all_qoutes);
+          }
           let dayCounter = 0
           backlog = parseInt(backlog)
 
@@ -57,14 +60,15 @@ const request = require('request');
             }
             foundDates++
             resObj[dateToFetch.format("YYYY-MM-DD")] = all_qoutes[dateToFetch.format("YYYY-MM-DD")]
-            if(foundDates == backlog){ break }
+            // if(foundDates == backlog){ break }
             now = dateToFetch
           }
-          
-          console.log("Left loop");
 
-          console.log("Stoped at date " + dateToFetch.format("YYYY-MM-DD"));
-          if (foundDates != backlog) { throw "You requested fo fetch more qoutes than exist " + foundDates + " " + backlog  }
+          if (foundDates != backlog) {
+            console.log(symbol + " stoped fetching at " + dateToFetch.format("YYYY-MM-DD") + ", total " + dayCounter + " days. Got " + foundDates + " days");
+            // console.log();
+            // throw "You requested fo fetch more qoutes than exist " + foundDates + " " + backlog
+          }
           resolve(resObj)
 
         } else {
@@ -90,13 +94,11 @@ const request = require('request');
           }
           todaysQoutes = {}
           // TODO Server craches if CANNOT GET
-          //console.log(body.wishlist);
           for (let i = 0; i < body.wishlist.length; i++) {
+            console.log(fs.readdirSync('./data').includes("V"));
             if (fs.readdirSync('./data').includes(body.wishlist[i])) {
               all_qoutes = JSON.parse(fs.readFileSync("./data/" + body.wishlist[i], options={encoding:"utf-8"}))
-              //if(all_qoutes[formatDate(yesterday)] === undefined){ continue }
               if(all_qoutes[yesterday.format("YYYY-MM-DD")] === undefined){ continue }
-              //todaysQoutes[body.wishlist[i]] = all_qoutes[formatDate(yesterday)]
               todaysQoutes[body.wishlist[i]] = all_qoutes[yesterday.format("YYYY-MM-DD")]
             } else {
               console.log("Need to implement API call for " + body.wishlist[i]);
@@ -107,8 +109,7 @@ const request = require('request');
           console.log(JSON.stringify(todaysQoutes, null, 2));
           resolve(todaysQoutes)
         })
-        // yesterday = today
-        //dayCounter ++
+
         yesterday.add(1, "days")
       })
     }
