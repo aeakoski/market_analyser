@@ -64,6 +64,17 @@ getQoute(symbol, days){
 debug(){
 }
 
+getStockDataToPlot(symbol){
+  let res = []
+  for(let date of Object.keys(this.stockGroup[symbol].qoutes_400)){
+    res.push({
+      date: date,
+      value: this.stockGroup[symbol].qoutes_400[date]["4. close"]
+    })
+  }
+  return res
+}
+
 populateStockData(){
     var _this = this
     let waitinglist = []
@@ -77,14 +88,13 @@ populateStockData(){
               console.log("No connection to broker, restart Broker, then restart this app");
               reject(true)
             } // ConnectionError
-            //gettingQoutes = this.getQoutes(this.owns[i].symbol, 400).then(function(symbol, data){
             _this.stockGroup[result.symbol].qoutes_400 = result.values
-            console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
-            //_this.calculate50Average(result.symbol)
-            //_this.calculate200Average(result.symbol)
-            //console.log(symbol + " " + Object.keys(_this.owns[symbol].qoutes_400).length + " qoutes");
-            }))
+            // for(let date of Object.keys(_this.stockGroup[result.symbol].qoutes_400)){
+            //   _this.stockGroup[result.symbol].qoutes_400[date].value = _this.stockGroup[result.symbol].qoutes_400[date]["4. close"]
+            // }
 
+            console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
+            }))
           }
         }
 

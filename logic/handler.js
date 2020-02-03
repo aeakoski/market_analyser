@@ -12,13 +12,13 @@ module.exports = class Handler {
     this.strategies.push(_MA_50_200_1)
   }
 
+  debug(){ this.portfolio.debug()}
+
   status(){
     for (let i = 0; i < this.strategies.length; i++) {
       this.strategies[i].calculateTrends()
     }
   }
-
-  debug(){ this.portfolio.debug()}
 
   getQoutes(symbol, backlog){
     return new Promise(function(resolve, reject){
@@ -34,6 +34,19 @@ module.exports = class Handler {
       })
 
     })
+  }
+
+  getPlotData(){
+    let res = {}
+    res["MA_50_200"] = {}
+    for (let symbol of this.portfolio.getSymbols()){
+      res["MA_50_200"][symbol] = {
+        regular:this.portfolio.getStockDataToPlot(symbol),
+        _50:this.strategies[0].calculate50Average(symbol),
+        _200:this.strategies[0].calculate200Average(symbol)
+      }
+    }
+    return res
   }
 
 }

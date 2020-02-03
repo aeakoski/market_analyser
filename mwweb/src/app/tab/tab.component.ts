@@ -39,6 +39,7 @@ export class TabComponent implements OnInit {
   }
 
   mini(arr, val){
+
     let m = 9999999
     for(let i of arr){
       if (parseFloat(val(i)) < m){
@@ -60,6 +61,12 @@ export class TabComponent implements OnInit {
   createChart(symbol) {
     console.log("CreateChart")
     this.stockGroups = this.depotService.getActiveStrategy()
+    console.log(this.stockGroups)
+
+    if(this.stockGroups == -1){
+      console.err("Something went wrong with seting the active strategy")
+      return
+    }
     //let result = this.depotService.getActiveStrategy()
     let conf =  [{
               type: "regular",

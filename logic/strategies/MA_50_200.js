@@ -11,7 +11,7 @@ module.exports = {
     this.owns = {}
     this.Handler = handler
     this.portfolio = portfolio
-    this.daysToOfferInView = 30
+    this.daysToOfferInView = 200
 
     // this.initFromFile = async function () {
     //   var _this = this

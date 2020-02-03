@@ -25,14 +25,14 @@ module.exports = function(app, Handler) {
   //   .get(function(req, res){
   //     res.json({wishlist:_Brain.getWishlist()})
   //   })
-  //
-  // app.route('/api/plotdata')
-  //   .get(function(req, res){
-  //     let o = _Brain.getPlotData()
-  //     //console.log(JSON.stringify(o, null, 2))
-  //     res.json(o)
-  //   })
-  //
+
+  app.route('/api/plotdata')
+    .get(function(req, res){
+      let o = Handler.getPlotData()
+      //console.log(JSON.stringify(o, null, 2))
+      res.json(o)
+    })
+
   // app.route('/api/stock')
   //   .put(function(req, res){
   //     if (_Brain.addNewStock(req.query.symbol.toUpperCase())){
