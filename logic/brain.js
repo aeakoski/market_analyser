@@ -5,8 +5,8 @@ const request = require('request');
 
 module.exports = {
   Brain: function () {
+    this.portfolio = new Portfolio()
     this.strategies = []
-
 
     this.formatDate = function(date){
       var d = new Date(date)
@@ -47,6 +47,27 @@ module.exports = {
         // TODO Call visualizer
         // TODO Call broker
       }
+    }
+
+    this.buy = function(orders){
+      // orders = [{ expiration: "2020-01-30", symbol:"MSFT", trend:0.4 }]
+      // Sort buy orders
+      orders.sort((a, b) => (a.trend > b.trend)? 1: -1)
+      // Create promise // reject only if networkerror
+      return Promise(function(resolve, reject){
+        for (let trade of orders){
+          // Check if I have exeeded risk on chosen symbol
+          if (true) {
+
+          }
+          // If not, then send buy signal to broker
+
+          // On callback register new buy in strategy
+
+        }
+      })
+
+
     }
 
     this.getPlotData = function(){
@@ -104,20 +125,20 @@ module.exports = {
       }
     }
 
-    this.getQoutes = function(symbol, backlog){
-      return new Promise(function(resolve, reject){
-        // Contact broker
-        console.log("Contacting: http://localhost:4001/backlog?symbol=" + symbol + '&days=' + backlog);
-        request('http://localhost:4001/backlog?symbol=' + symbol + '&days=' + backlog, { json: true }, (err, res, body) => {
-          if (err) {
-            console.log(err);
-            reject(err)
-          } else {
-            resolve(body)
-          }
-        })
-
-      })
-    }
-  }
+  //   this.getQoutes = function(symbol, backlog){
+  //     return new Promise(function(resolve, reject){
+  //       // Contact broker
+  //       console.log("Contacting: http://localhost:4001/backlog?symbol=" + symbol + '&days=' + backlog);
+  //       request('http://localhost:4001/backlog?symbol=' + symbol + '&days=' + backlog, { json: true }, (err, res, body) => {
+  //         if (err) {
+  //           console.log(err);
+  //           reject(err)
+  //         } else {
+  //           resolve(body)
+  //         }
+  //       })
+  //
+  //     })
+  //   }
+ }
 }
