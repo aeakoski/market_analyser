@@ -1,14 +1,14 @@
 var fs = require('fs')
 const request = require('request');
 const Portfolio = require('./portfolio');
-const MA_50_200 = require('./strategies/MA_50_200')
+const MA = require('./strategies/MA_50_200')
 
 module.exports = class Handler {
   constructor(){
     this.portfolio = new Portfolio(this)
     this.strategies = []
 
-    let _MA_50_200_1 = new MA_50_200.MA_50_200("MA_50_200", this.portfolio, this)
+    let _MA_50_200_1 = new MA("MA_50_200", this.portfolio, this, 30)
     this.strategies.push(_MA_50_200_1)
   }
 
