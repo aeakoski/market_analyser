@@ -1,15 +1,17 @@
 var fs = require('fs')
 const request = require('request');
 const Portfolio = require('./portfolio');
-const MA = require('./strategies/MA_50_200')
+const SMA = require('./strategies/SMA')
+const WMA = require('./strategies/WMA')
+const EMA = require('./strategies/EMA')
 
 module.exports = class Handler {
   constructor(){
     this.portfolio = new Portfolio(this)
     this.strategies = []
-
-    let _MA_50_200_1 = new MA("MA_50_200", this.portfolio, this, 30)
-    this.strategies.push(_MA_50_200_1)
+    this.strategies.push(new SMA("SMA", this.portfolio, this, 10, 50))
+    this.strategies.push(new WMA("WMA", this.portfolio, this, 10, 50))
+    this.strategies.push(new EMA("EMA", this.portfolio, this, 10, 50))
   }
 
   debug(){ this.portfolio.debug()}
@@ -38,14 +40,17 @@ module.exports = class Handler {
 
   getPlotData(){
     let res = {}
-    res["MA_50_200"] = {}
-    for (let symbol of this.portfolio.getSymbols()){
-      res["MA_50_200"][symbol] = {
-        regular:this.strategies[0].getStockDataToPlot(symbol),
-        _50:this.strategies[0].calculate50Average(symbol),
-        _200:this.strategies[0].calculate200Average(symbol)
-      }
+    for(let strat of this.strategies){
+        res[strat.name] = {}
+        for (let symbol of this.portfolio.getSymbols()){
+          res[strat.name][symbol] = {
+            regular:strat.getStockDataToPlot(symbol),
+            _50:strat.calculateAverage(symbol, 10),
+            _200:strat.calculateAverage(symbol, 50)
+          }
+        }
     }
+
     return res
   }
 

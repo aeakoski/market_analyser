@@ -2,3 +2,7 @@
   <button class="tablinks" *ngFor="let s of depotService.getStrategiesNames()" (click)="depotService.setActiveStrategyName(s)">{{s}}</button>
   <button class="tablinks" (click)="depotService.callForNewDay()">New Day</button>
 </div>
+
+<div class="tab">
+  <p>{{depotService.getActiveStrategyName()}}</p>
+</div>

@@ -10,7 +10,8 @@ export class DepotService {
   activeStrategy: string;
   strategies_object: any; //
   status: boolean; // Do we have data or not
-  subject : Subject<any> = new Subject<any>();
+  newDayData : Subject<any> = new Subject<any>();
+  newStrategyChoice : Subject<any> = new Subject<any>();
 
 
   constructor(private http: HttpClient) {
@@ -32,10 +33,17 @@ export class DepotService {
   // Get Strategies names
   getStrategiesNames() { return Object.keys(this.strategies_object) }
   getDataDownloadStatus(){ return this.status }
-  setActiveStrategyName(s){ this.activeStrategy = s }
+  setActiveStrategyName(s){
+    console.log("New strategy set: " + s)
+    this.activeStrategy = s
+    this.newStrategyChoice.next(s)
+  }
+  getActiveStrategyName(){
+    return this.activeStrategy
+  }
   getActiveStrategy(){
     if(this.activeStrategy == undefined){
-      return -1
+      return ""
     }
     return this.strategies_object[this.activeStrategy]
   }
@@ -52,7 +60,7 @@ export class DepotService {
           next: result => {
             this.strategies_object = result;
             this.status = true;
-            this.subject.next(this.strategies_object);
+            this.newDayData.next(this.strategies_object);
 
           },
           error: err => console.error(err),

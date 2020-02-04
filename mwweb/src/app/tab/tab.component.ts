@@ -26,10 +26,11 @@ export class TabComponent implements OnInit {
   getTitle(){ return this.title }
 
   ngOnInit() {
-    this.depotService.subject.subscribe((data) => {
-      console.log("getNewData")
-      this.stockGroups = this.depotService.getActiveStrategy()
-      this.stockGroupsKeys = Object.keys(this.depotService.getActiveStrategy())
+    this.depotService.newDayData.subscribe((data) => {
+      this.updateLines()
+    })
+
+    this.depotService.newStrategyChoice.subscribe((strategy) => {
       this.updateLines()
     })
 
@@ -59,12 +60,9 @@ export class TabComponent implements OnInit {
   }
 
   createChart(symbol) {
-    console.log("CreateChart")
     this.stockGroups = this.depotService.getActiveStrategy()
-    console.log(this.stockGroups)
-
     if(this.stockGroups == -1){
-      console.err("Something went wrong with seting the active strategy")
+      console.error("Something went wrong with seting the active strategy")
       return
     }
     //let result = this.depotService.getActiveStrategy()
@@ -150,6 +148,9 @@ export class TabComponent implements OnInit {
     }
   }
   updateLines(){
+    this.stockGroups = this.depotService.getActiveStrategy()
+    this.stockGroupsKeys = Object.keys(this.depotService.getActiveStrategy())
+
     console.log("updateChart")
     console.log("---------------------------------------------")
 

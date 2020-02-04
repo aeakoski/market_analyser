@@ -5,10 +5,10 @@
 
 <div class="connected" *ngIf="depotService.getDataDownloadStatus()">
   <app-tabbar></app-tabbar>
-  <div class="" *ngIf="depotService.getActiveStrategy() != -1">
+  <div class="" *ngIf="depotService.getActiveStrategy() != ''">
     <app-tab></app-tab>
   </div>
-  <div class="" *ngIf="!depotService.getActiveStrategy() != -1">
+  <div class="" *ngIf="!depotService.getActiveStrategy() != ''">
     <p>Choose a strategy from above</p>
   </div>
 </div>
