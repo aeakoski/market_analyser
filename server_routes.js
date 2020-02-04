@@ -14,23 +14,22 @@ module.exports = function(app, Handler) {
       res.send("OK")
     })
 
-  // app.route('/api/newday')
-  //   .post(function(req, res){
-  //
-  //     _Brain.newDay(req.body)
-  //     res.send("OK")
-  //   })
-  //
-  // app.route('/api/wishlist')
-  //   .get(function(req, res){
-  //     res.json({wishlist:_Brain.getWishlist()})
-  //   })
+  app.route('/api/newday')
+    .post(function(req, res){
+      Handler.newDay(req.body)
+      res.send("OK")
+    })
 
   app.route('/api/plotdata')
     .get(function(req, res){
       let o = Handler.getPlotData()
       //console.log(JSON.stringify(o, null, 2))
       res.json(o)
+    })
+
+  app.route('/api/wishlist')
+    .get(function(req, res){
+      res.json({wishlist:Handler.getWishlist()})
     })
 
   // app.route('/api/stock')

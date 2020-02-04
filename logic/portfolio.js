@@ -49,11 +49,10 @@ setStockGroup(sgObj){ this.stockGroup = sgObj }
 getStockroup(){ return this.stockGroup }
 getSymbols(){return this.symbols_wishlist}
 getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
-
 getQoute(symbol, days){
     var _this = this
     return new Promise(function(resolve, reject){
-      _this.Handler.getQoutes(symbol, days).then(function(qoutes, err){
+      _this.Handler.requestQoutes(symbol, days).then(function(qoutes, err){
         if(err){ console.log("Connection error"); reject(err); return}
         let vals = []
         vals = qoutes
@@ -64,15 +63,11 @@ getQoute(symbol, days){
 debug(){
 }
 
-getStockDataToPlot(symbol){
-  let res = []
-  for(let date of Object.keys(this.stockGroup[symbol].qoutes_400)){
-    res.push({
-      date: date,
-      value: this.stockGroup[symbol].qoutes_400[date]["4. close"]
-    })
+addNewQoute(q){
+  for(let symbol of Object.keys(q)){
+    if(symbol === "date"){continue}
+    this.stockGroup[symbol].qoutes_400[q.date] = q[symbol]
   }
-  return res
 }
 
 populateStockData(){

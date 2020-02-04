@@ -81,6 +81,22 @@ module.exports = {
       return this.symbols_wishlist.filter(x => iOwn.indexOf(x) === -1)
     }
 
+    this.getStockDataToPlot = function(symbol){
+      let res = []
+      let dateList = Object.keys(this.portfolio.getStockData(symbol))
+      dateList.sort()
+      dateList.reverse()
+      let counter
+      for(let date of dateList){
+        if (counter > this.daysToOfferInView) { break }
+        res.push({
+          date: date,
+          value: this.portfolio.getStockData(symbol)[date]["4. close"]
+        })
+      }
+      return res
+    }
+
     this.getRegularQoutes = function(symbol){
       let arr = []
       let dates = Object.keys(this.owns[symbol].qoutes_400).sort().reverse().slice(0,this.daysToOfferInView)

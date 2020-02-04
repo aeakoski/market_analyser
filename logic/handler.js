@@ -20,7 +20,7 @@ module.exports = class Handler {
     }
   }
 
-  getQoutes(symbol, backlog){
+  requestQoutes(symbol, backlog){
     return new Promise(function(resolve, reject){
       // Contact broker
       console.log("Contacting: http://localhost:4001/backlog?symbol=" + symbol + '&days=' + backlog);
@@ -41,12 +41,26 @@ module.exports = class Handler {
     res["MA_50_200"] = {}
     for (let symbol of this.portfolio.getSymbols()){
       res["MA_50_200"][symbol] = {
-        regular:this.portfolio.getStockDataToPlot(symbol),
+        regular:this.strategies[0].getStockDataToPlot(symbol),
         _50:this.strategies[0].calculate50Average(symbol),
         _200:this.strategies[0].calculate200Average(symbol)
       }
     }
     return res
+  }
+
+  getWishlist(){ return this.portfolio.getSymbols() }
+
+  newDay(q){
+    if (Object.keys(q).length == 1) {
+      console.log("Today is holiday");
+      return
+    }
+    this.portfolio.addNewQoute(q)
+    for (let i = 0; i < this.strategies.length; i++) {
+      this.strategies[i].calculateTrends()
+      // TODO Call broker
+    }
   }
 
 }
