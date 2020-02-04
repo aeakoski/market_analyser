@@ -81,7 +81,7 @@ export class TabComponent implements OnInit {
    //let element = this.chartContainer.nativeElement;
    if(this.svgs[symbol] == undefined){
      let newDiv = document.createElement("div");
-     newDiv.setAttribute("id", "plot_" + symbol);
+     newDiv.setAttribute("id", "plot_" + symbol.replace(".","-"));
      newDiv.setAttribute("class", "plot");
      let newP = document.createElement("p")
      newP.setAttribute("style", "text-align: center;")
@@ -91,7 +91,7 @@ export class TabComponent implements OnInit {
      document.getElementById("plotArea").appendChild(newDiv)
      //this.width = element.offsetWidth - this.margin.left - this.margin.right;
      //this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
-     this.svgs[symbol] = d3.select("#plot_" + symbol)//element)
+     this.svgs[symbol] = d3.select("#plot_" + symbol.replace(".","-"))//element)
      .append('svg')
      .attr('width', this.width + this.margin.left + this.margin.right)//element.offsetWidth)
      .attr('height', this.height + this.margin.top + this.margin.bottom)//element.offsetHeight)
@@ -103,6 +103,8 @@ export class TabComponent implements OnInit {
    let ymin = 99999
    let ymax = 0
     for (let _c of conf){
+      // console.log(this.stockGroups[symbol][_c.type])
+      if(!(this.stockGroups[symbol][_c.type].length)){ return }
       if (this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value}) < ymin) {
         ymin = this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value})//d3.min(result[symbol][_c.type], function(d){return d.value})
       }
@@ -116,6 +118,7 @@ export class TabComponent implements OnInit {
 
    for (let c of conf){
      // let data = this.stockGroups[symbol][c.type]
+     if(!(this.stockGroups[symbol][c.type].length)){ return }
      if (c.type == "regular") {
        // Add X axis --> it is a date format
        var x = d3.scaleTime()
@@ -182,7 +185,7 @@ export class TabComponent implements OnInit {
 
       console.log(symbol + ": " + ymin + "->" + ymax )
 
-      let svg = d3.select("#plot_" + symbol).transition();
+      let svg = d3.select("#plot_" + symbol.replace(".","-")).transition();
       for (let c of conf){
         // let data = this.stockGroups[symbol][c.type]
         if (c.type == "regular") {
