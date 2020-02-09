@@ -35,6 +35,7 @@ export class TabComponent implements OnInit {
     })
 
     for( let s of this.stockGroupsKeys ){
+
       this.createChart(s)
     }
   }

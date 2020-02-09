@@ -5,7 +5,8 @@ const Stock = require('./stock');
 const StockGroup = require('./stock_group');
 
 class Portfolio{
-  constructor(handler){
+  constructor(name, handler){
+    this.name = name
     this.Handler = handler
     // this.name
     // this.balanceLeft

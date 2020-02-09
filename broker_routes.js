@@ -10,6 +10,28 @@ module.exports = function(app) {
       })
     });
 
+  app.route('/sell')
+    .post(function(req, res){
+      BC.sell(req.body).then(function(data){
+        res.json(data)
+        return data
+      })
+      // req.body {buy:["MSFT", AAPL], sell:[]}
+      // return {}
+    })
+
+
+  app.route('/buy')
+    .post(function(req, res){
+      BC.buy(req.body).then(function(data){
+        res.json(data)
+        return data
+      })
+      // req.body {buy:["MSFT", AAPL], sell:[]}
+      // return {}
+    })
+
+
   app.route('/backlog')
     .get(function(req, res){
       // Send querry and fetch data
