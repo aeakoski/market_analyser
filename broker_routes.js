@@ -12,9 +12,11 @@ module.exports = function(app) {
 
   app.route('/sell')
     .post(function(req, res){
+      //console.log(req)
+      //console.log(JSON.parse(req.body))
+
       BC.sell(req.body).then(function(data){
         res.json(data)
-        return data
       })
       // req.body {buy:["MSFT", AAPL], sell:[]}
       // return {}
@@ -25,7 +27,7 @@ module.exports = function(app) {
     .post(function(req, res){
       BC.buy(req.body).then(function(data){
         res.json(data)
-        return data
+        
       })
       // req.body {buy:["MSFT", AAPL], sell:[]}
       // return {}

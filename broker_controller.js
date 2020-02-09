@@ -60,15 +60,21 @@ exports.getBacklog = function(symbol, backlog){
 }
 
 exports.sell = async function(sellList){
+  returnsList = []
   // sellList [{symbol: "MSFT", id:203345453201}, {}, {}]
+  console.log(sellList.results.map(x => x.symbol));
   let returnPrice = 0
-  let p = exports.getTodaysQoutes(sellList.map(x => x.symbol)).then(function(prices){
-    for(let stock of sellList){
-      returnPrice = returnPrice + parseFloat(prices[stock.symbol]["4. close"])*0.99
+  let p = exports.getTodaysQoutes(sellList.results.map(x => x.symbol)).then(function(prices){
+    for(let stock of sellList.results){
+      if (prices[stock.symbol] === undefined) {
+        returnsList.push(stock)
+      } else {
+        returnPrice = returnPrice + parseFloat(prices[stock.symbol]["4. close"])*0.99
+      }
     }
   })
   await p
-  return { prices: returnPrice }
+  return { ackumulatedPrice: returnPrice, returns:returnsList }
 }
 
 
@@ -113,9 +119,11 @@ exports.getTodaysQoutes = function(symbols, backlog){
           console.log("Need to implement API call for " + symbol);
         }
       }
-      console.log("Todays qoutes is");
       todaysQoutes.date = requestDate
+      console.log("Todays qoutes is");
+      console.log(todaysQoutes);
       resolve(todaysQoutes)
+      return
     }
     request('http://localhost:4000/api/wishlist', { json: true }, (err, res, body) => {
       if (err) { return console.log(err) }
