@@ -59,20 +59,30 @@ module.exports = class Handler {
     return res
   }
 
-  getWishlist(portfolioName){ return this.portfolios[portfolioName].getSymbols() }
+  getWishlist(portfolioName){ return this.portfolios[portfolioName].getSymbols() } // NEXT UP: NEED TO HAVE SYMBOLS LIST
 
-  newDay(q){
-    if (Object.keys(q).length == 1) {
-      console.log("Today is holiday");
-      return
-    }
+  _newDay(){
     for(let portfolioName of Object.keys(this.portfolios)){
-      this.portfolios[portfolioName].addNewQoute(q)
-    }
-    for (let i = 0; i < this.strategies.length; i++) {
-      this.strategies[i].calculateTrends()
-      // TODO Call broker
+      // Get the symbols
+      let _symbols = this.portfolios[portfolioName].getSymbols()
+
+      // Create request to the broker
+      request({
+        url: 'http://localhost:4001/newday',
+        method: "POST",
+        json: {symbols:_symbols}
+      }, (err, res, q) => {
+        // Recieve broker data
+        if (err) { return console.log(err) }
+        // Update portfolio
+        for(let portfolioName of Object.keys(this.portfolios)){
+          this.portfolios[portfolioName].addNewQoute(q)
+        }
+        for (let i = 0; i < this.strategies.length; i++) {
+          this.strategies[i].calculateTrends()
+          // TODO Call broker
+        }
+      })
     }
   }
 }
-//module.exports.Handler

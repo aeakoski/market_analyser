@@ -2,10 +2,17 @@
 const BC = require('./broker_controller');
 
 module.exports = function(app) {
+  // app.route('/newday')
+  //   .get(function(req, res){
+  //     BC.getTodaysQoutes().then(function(data, err){
+  //       BC.pushTodaysQoutes(data)
+  //       res.json(data)
+  //     })
+  //   });
+
   app.route('/newday')
-    .get(function(req, res){
-      BC.getTodaysQoutes().then(function(data, err){
-        BC.pushTodaysQoutes(data)
+    .post(function(req, res){
+      BC.getTodaysQoutes(req.body.symbols).then(function(data, err){
         res.json(data)
       })
     });
@@ -27,7 +34,7 @@ module.exports = function(app) {
     .post(function(req, res){
       BC.buy(req.body).then(function(data){
         res.json(data)
-        
+
       })
       // req.body {buy:["MSFT", AAPL], sell:[]}
       // return {}

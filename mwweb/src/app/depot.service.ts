@@ -49,19 +49,16 @@ export class DepotService {
   }
 
   callForNewDay(){
-    this.http.get("http://localhost:4001/newday")
+    // Call handler newday to trigger a new day
+    // Afterwards call for new data to plot
+    this.http.get("http://localhost:4000/api/newday")
     .subscribe({
       next: res => {
-        if(Object.keys(res).length == 1){
-          console.log("Weekend")
-          return
-        }
         this._getStrategies().subscribe({
           next: result => {
             this.strategies_object = result;
             this.status = true;
             this.newDayData.next(this.strategies_object);
-
           },
           error: err => console.error(err),
           complete: () => console.log('Observer got a complete notification'),

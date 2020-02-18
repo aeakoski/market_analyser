@@ -15,9 +15,9 @@ module.exports = function(app, Handler) {
     })
 
   app.route('/api/newday')
-    .post(function(req, res){
-      Handler.newDay(req.body)
-      res.send("OK")
+    .get(function(req, res){
+      Handler._newDay()
+      res.json({status:"OK"})
     })
 
   app.route('/api/plotdata')
@@ -29,23 +29,7 @@ module.exports = function(app, Handler) {
 
   app.route('/api/wishlist')
     .get(function(req, res){
-      res.json({wishlist:Handler.getWishlist()})
+      res.json({wishlist:Handler.getWishlist(req.query.portfolio)})
     })
 
-  // app.route('/api/stock')
-  //   .put(function(req, res){
-  //     if (_Brain.addNewStock(req.query.symbol.toUpperCase())){
-  //       res.send("OK!")
-  //     } else {
-  //       res.send("NO NEW")
-  //     }
-  //   })
-  //   .delete(function(req, res){
-  //     console.log("Trying to delete")
-  //     if (_Brain.deleteStock(req.query.symbol.toUpperCase())) {
-  //       res.send("OK")
-  //     } else {
-  //       res.send("NO")
-  //     }
-  //   })
 };

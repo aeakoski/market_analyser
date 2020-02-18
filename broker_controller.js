@@ -104,6 +104,8 @@ exports.buy = async function(buyList){
 
 
 exports.getTodaysQoutes = function(symbols, backlog){
+  // Retorns
+
   return new Promise(function(resolve, reject){
     console.log("Fetching qoutes for: " + yesterday.format("YYYY-MM-DD"));
     var requestDate = yesterday.format("YYYY-MM-DD")
@@ -123,30 +125,30 @@ exports.getTodaysQoutes = function(symbols, backlog){
       console.log("Todays qoutes is");
       console.log(todaysQoutes);
       resolve(todaysQoutes)
-      return
+      //return
     }
-    request('http://localhost:4000/api/wishlist', { json: true }, (err, res, body) => {
-      if (err) { return console.log(err) }
-      if (body.wishlist === undefined){
-        console.log("Body of Wishlist Undefined. Get failed");
-        return
-      }
-      todaysQoutes = {}
-      // TODO Server craches if CANNOT GET
-      for (let i = 0; i < body.wishlist.length; i++) {
-        if (fs.readdirSync('./data').includes(body.wishlist[i])) {
-          all_qoutes = JSON.parse(fs.readFileSync("./data/" + body.wishlist[i], options={encoding:"utf-8"}))
-          if(all_qoutes[yesterday.format("YYYY-MM-DD")] === undefined){ continue }
-          todaysQoutes[body.wishlist[i]] = all_qoutes[yesterday.format("YYYY-MM-DD")]
-        } else {
-          console.log("Need to implement API call for " + body.wishlist[i]);
-        }
-      }
-      console.log("Todays qoutes is");
-      todaysQoutes.date = requestDate
-      console.log(JSON.stringify(todaysQoutes, null, 2));
-      resolve(todaysQoutes)
-    })
+    // request('http://localhost:4000/api/wishlist', { json: true }, (err, res, body) => {
+    //   if (err) { return console.log(err) }
+    //   if (body.wishlist === undefined){
+    //     console.log("Body of Wishlist Undefined. Get failed");
+    //     return
+    //   }
+    //   todaysQoutes = {}
+    //   // TODO Server craches if CANNOT GET
+    //   for (let i = 0; i < body.wishlist.length; i++) {
+    //     if (fs.readdirSync('./data').includes(body.wishlist[i])) {
+    //       all_qoutes = JSON.parse(fs.readFileSync("./data/" + body.wishlist[i], options={encoding:"utf-8"}))
+    //       if(all_qoutes[yesterday.format("YYYY-MM-DD")] === undefined){ continue }
+    //       todaysQoutes[body.wishlist[i]] = all_qoutes[yesterday.format("YYYY-MM-DD")]
+    //     } else {
+    //       console.log("Need to implement API call for " + body.wishlist[i]);
+    //     }
+    //   }
+    //   console.log("Todays qoutes is");
+    //   todaysQoutes.date = requestDate
+    //   console.log(JSON.stringify(todaysQoutes, null, 2));
+    //   resolve(todaysQoutes)
+    // })
 
     yesterday.add(1, "days")
   })
