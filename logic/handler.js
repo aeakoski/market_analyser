@@ -59,6 +59,19 @@ module.exports = class Handler {
     return res
   }
 
+  manageOffer(offer){
+    // Have i reached the risk limit?
+
+    // How many can i aford to buy
+    console.log("I recieved the offer");
+    console.log(offer);
+
+
+    // Register trade
+
+
+  }
+
   getWishlist(portfolioName){ return this.portfolios[portfolioName].getSymbols() } // NEXT UP: NEED TO HAVE SYMBOLS LIST
 
   _newDay(){
@@ -73,14 +86,48 @@ module.exports = class Handler {
         json: {symbols:_symbols}
       }, (err, res, q) => {
         // Recieve broker data
-        if (err) { return console.log(err) }
-        // Update portfolio
+        if (err) {
+          console.log("Got error");
+          console.log(err);
+          return
+        }
+        // Update portfolio with new qoutes
+        console.log("Printing Q");
+        console.log(q);
         for(let portfolioName of Object.keys(this.portfolios)){
           this.portfolios[portfolioName].addNewQoute(q)
         }
+
+        // Calculate trends
+        let _this = this
         for (let i = 0; i < this.strategies.length; i++) {
-          this.strategies[i].calculateTrends()
-          // TODO Call broker
+          let actions = this.strategies[i].calculateTrends()
+
+          // SELL
+          for (let symbolToSell of actions.sell){
+            let stocksToSell = this.portfolios[portfolioName].getAndRemoveStocks(symbolToSell.symbol)
+            request({
+              url: 'http://localhost:4001/sell',
+              method: "POST",
+              json: {results: stocksToSell}
+              },
+              (err, res, q) => {
+                if (err) { return console.log(err) }
+                _this.portfolios[portfolioName].returnStocks(q.returns)
+                _this.portfolios[portfolioName].addToBalance(q.ackumulatedPrice)
+            })
+          }
+
+          // BUY
+          for (let symbolToBuy of actions.buy){
+            let moneyToSpend = this.portfolios[portfolioName].getMoneyLeft()
+            request({
+              url: 'http://localhost:4001/buy',
+              method: "POST",
+              json: {results: symbolToBuy}
+              },
+              (err, res, q) => {})
+          }
         }
       })
     }

@@ -61,7 +61,7 @@ exports.getBacklog = function(symbol, backlog){
 
 exports.sell = async function(sellList){
   returnsList = []
-  // sellList [{symbol: "MSFT", id:203345453201}, {}, {}]
+  // sellList.results [{symbol: "MSFT", id:203345453201}, {}, {}]
   console.log(sellList.results.map(x => x.symbol));
   let returnPrice = 0
   let p = exports.getTodaysQoutes(sellList.results.map(x => x.symbol)).then(function(prices){
@@ -80,34 +80,50 @@ exports.sell = async function(sellList){
 
 exports.buy = async function(buyList){
   // buyList [{symbol: "MSFT", amount:2}, {}, {}]
+  console.log("Client wants to buy");
+  console.log(buyList);
   let returnStocks = {}
-  let p = exports.getTodaysQoutes(buyList.map(x => x.symbol)).then(function(prices){
-    for(let stock of buyList){
-      returnStocks[stock.symbol] = []
-      for (let i = 0; i < stock.ammount; i++) {
-        // Buy a stock
-        let stockObj = {}
-        // Get price
-        stockObj[price] = parseFloat(prices[stock.symbol]["4. close"]) * 1.01
-        // Get buydate
-        stockObj[buyDate] = yesterday.format("YYYY-MM-DD")
-        // Get get ID
-        stockObj[id] = Math.floor(Math.random() * 1000000000000000)
-        returnStocks[stock.symbol].push(stockObj)
-      }
+  let p = exports.getTodaysQoutes([buyList.symbol]).then(function(prices){
+    // Check for weekend
+    console.log("Prices delivered to Buy");
+    console.log(prices);
+    if (Object.keys(prices).length === 1) {
+      return returnStocks
+    }
+    returnStocks[buyList.symbol] = []
+    let NUMBER_OF_STOCKS_TO_OFFER = 3
+    for (let i = 0; i < NUMBER_OF_STOCKS_TO_OFFER; i++) {
+      // Buy a stock
+      let stockObj = {}
+      // Get price
+      stockObj.price = parseFloat(prices[buyList.symbol]["4. close"]) * 1.01
+      // Get buydate
+      stockObj.buyDate = yesterday.format("YYYY-MM-DD")
+      // Get get ID
+      stockObj.id = Math.floor(Math.random() * 1000000000000000)
 
+      // Offer the stock to the portfolio
+      request({
+        url: 'http://localhost:4000/api/offer',
+        method: "POST",
+        json: {results: stockObj}
+        },
+        (err, res, q) => {
+      })
     }
   })
   await p
   return returnStocks
 }
 
+exports.incrementDate = function(){
+  yesterday.add(1, "days")
+}
+
 
 exports.getTodaysQoutes = function(symbols, backlog){
-  // Retorns
-
+  //console.log("Fetching qoutes for: " + yesterday.format("YYYY-MM-DD"));
   return new Promise(function(resolve, reject){
-    console.log("Fetching qoutes for: " + yesterday.format("YYYY-MM-DD"));
     var requestDate = yesterday.format("YYYY-MM-DD")
     if( symbols != undefined ){
       todaysQoutes = {}
@@ -122,34 +138,8 @@ exports.getTodaysQoutes = function(symbols, backlog){
         }
       }
       todaysQoutes.date = requestDate
-      console.log("Todays qoutes is");
-      console.log(todaysQoutes);
       resolve(todaysQoutes)
       //return
     }
-    // request('http://localhost:4000/api/wishlist', { json: true }, (err, res, body) => {
-    //   if (err) { return console.log(err) }
-    //   if (body.wishlist === undefined){
-    //     console.log("Body of Wishlist Undefined. Get failed");
-    //     return
-    //   }
-    //   todaysQoutes = {}
-    //   // TODO Server craches if CANNOT GET
-    //   for (let i = 0; i < body.wishlist.length; i++) {
-    //     if (fs.readdirSync('./data').includes(body.wishlist[i])) {
-    //       all_qoutes = JSON.parse(fs.readFileSync("./data/" + body.wishlist[i], options={encoding:"utf-8"}))
-    //       if(all_qoutes[yesterday.format("YYYY-MM-DD")] === undefined){ continue }
-    //       todaysQoutes[body.wishlist[i]] = all_qoutes[yesterday.format("YYYY-MM-DD")]
-    //     } else {
-    //       console.log("Need to implement API call for " + body.wishlist[i]);
-    //     }
-    //   }
-    //   console.log("Todays qoutes is");
-    //   todaysQoutes.date = requestDate
-    //   console.log(JSON.stringify(todaysQoutes, null, 2));
-    //   resolve(todaysQoutes)
-    // })
-
-    yesterday.add(1, "days")
   })
 }

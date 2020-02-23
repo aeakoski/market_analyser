@@ -13,6 +13,9 @@ module.exports = function(app) {
   app.route('/newday')
     .post(function(req, res){
       BC.getTodaysQoutes(req.body.symbols).then(function(data, err){
+        BC.incrementDate()
+        console.log("Todays qoutes is");
+        console.log(data);
         res.json(data)
       })
     });
@@ -32,7 +35,7 @@ module.exports = function(app) {
 
   app.route('/buy')
     .post(function(req, res){
-      BC.buy(req.body).then(function(data){
+      BC.buy(req.body.results).then(function(data){
         res.json(data)
 
       })

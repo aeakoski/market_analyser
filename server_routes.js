@@ -7,11 +7,16 @@ module.exports = function(app, Handler) {
       res.send("OK")
     })
 
-
   app.route('/api/status')
     .get(function(req, res){
       Handler.status()
       res.send("OK")
+    })
+
+  app.route('api/offer')
+    .post(function(req, res){
+      outcome = Handler.manageOffer(req.body)
+      res.send(outcome)
     })
 
   app.route('/api/newday')
@@ -25,11 +30,6 @@ module.exports = function(app, Handler) {
       let o = Handler.getPlotData()
       //console.log(JSON.stringify(o, null, 2))
       res.json(o)
-    })
-
-  app.route('/api/wishlist')
-    .get(function(req, res){
-      res.json({wishlist:Handler.getWishlist(req.query.portfolio)})
     })
 
 };

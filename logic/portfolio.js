@@ -45,62 +45,74 @@ class Portfolio{
     )
   }
 
-getPortfolioName(){ return this.name }
-setStockGroup(sgObj){ this.stockGroup = sgObj }
-getStockroup(){ return this.stockGroup }
-getSymbols(){return this.symbols_wishlist}
-getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
-getQoute(symbol, days){
-    var _this = this
-    return new Promise(function(resolve, reject){
-      _this.Handler.requestQoutes(symbol, days).then(function(qoutes, err){
-        if(err){ console.log("Connection error"); reject(err); return}
-        let vals = []
-        vals = qoutes
-        resolve({symbol:symbol, values:vals})
+  setStockGroup(sgObj){ this.stockGroup = sgObj }
+  getPortfolioName(){ return this.name }
+  getStockroup(){ return this.stockGroup }
+  getMoneyLeft(){return this.balanceLeft}
+  getAndRemoveStocks(symbol){
+    let ret = this.stockGroup[symbol].stocks
+    this.stockGroup[symbol].stocks = []
+    return ret
+  }
+  returnStocks(stockList){
+    for(stock of stockList){
+      this.stockGroup[stock.symbol].stocks.push(stock)
+    }
+  }
+  addToBalance(money){this.balanceLeft = this.balanceLeft + money}
+  getSymbols(){return this.symbols_wishlist}
+  getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
+  getQoute(symbol, days){
+      var _this = this
+      return new Promise(function(resolve, reject){
+        _this.Handler.requestQoutes(symbol, days).then(function(qoutes, err){
+          if(err){ console.log("Connection error"); reject(err); return}
+          let vals = []
+          vals = qoutes
+          resolve({symbol:symbol, values:vals})
+        })
       })
-    })
+    }
+  debug(){
   }
-debug(){
-}
 
-addNewQoute(q){
-  for(let symbol of Object.keys(q)){
-    if(symbol === "date"){continue}
-    this.stockGroup[symbol].qoutes_400[q.date] = q[symbol]
+  addNewQoute(q){
+    for(let symbol of Object.keys(q)){
+      if(symbol === "date"){continue}
+      this.stockGroup[symbol].qoutes_400[q.date] = q[symbol]
+    }
   }
-}
 
-populateStockData(){
-    var _this = this
-    let waitinglist = []
-    return new Promise(async function(resolve, reject){
-      for (let symbol of Object.keys(_this.stockGroup)) {
-        // Check for an earlier AVG. IF not exists, call for one
-        if (_this.stockGroup[symbol].qoutes_400 == -1) {
-          console.log("Fetching for: " + symbol);
-          waitinglist.push(_this.getQoute(symbol, 400).then(async function(result, err){
-            if (err){
-              console.log("No connection to broker, restart Broker, then restart this app");
-              reject(true)
-            } // ConnectionError
-            _this.stockGroup[result.symbol].qoutes_400 = result.values
-            // for(let date of Object.keys(_this.stockGroup[result.symbol].qoutes_400)){
-            //   _this.stockGroup[result.symbol].qoutes_400[date].value = _this.stockGroup[result.symbol].qoutes_400[date]["4. close"]
-            // }
+  populateStockData(){
+      var _this = this
+      let waitinglist = []
+      return new Promise(async function(resolve, reject){
+        for (let symbol of Object.keys(_this.stockGroup)) {
+          // Check for an earlier AVG. IF not exists, call for one
+          if (_this.stockGroup[symbol].qoutes_400 == -1) {
+            console.log("Fetching for: " + symbol);
+            waitinglist.push(_this.getQoute(symbol, 400).then(async function(result, err){
+              if (err){
+                console.log("No connection to broker, restart Broker, then restart this app");
+                reject(true)
+              } // ConnectionError
+              _this.stockGroup[result.symbol].qoutes_400 = result.values
+              // for(let date of Object.keys(_this.stockGroup[result.symbol].qoutes_400)){
+              //   _this.stockGroup[result.symbol].qoutes_400[date].value = _this.stockGroup[result.symbol].qoutes_400[date]["4. close"]
+              // }
 
-            console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
-            }))
+              console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
+              }))
+            }
           }
-        }
 
-        for (let halt of waitinglist){
-          await halt
-        }
-        resolve(true)
-    })
+          for (let halt of waitinglist){
+            await halt
+          }
+          resolve(true)
+      })
 
-  }
+    }
 
   addToWishList(symbol){
     const index = this.symbols_wishlist.indexOf(symbol.toUpperCase());
