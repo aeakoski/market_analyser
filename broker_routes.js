@@ -14,8 +14,8 @@ module.exports = function(app) {
     .post(function(req, res){
       BC.getTodaysQoutes(req.body.symbols).then(function(data, err){
         BC.incrementDate()
-        console.log("Todays qoutes is");
-        console.log(data);
+        // console.log("Todays qoutes is");
+        // console.log(data);
         res.json(data)
       })
     });
@@ -24,7 +24,6 @@ module.exports = function(app) {
     .post(function(req, res){
       //console.log(req)
       //console.log(JSON.parse(req.body))
-
       BC.sell(req.body).then(function(data){
         res.json(data)
       })
@@ -35,10 +34,10 @@ module.exports = function(app) {
 
   app.route('/buy')
     .post(function(req, res){
-      BC.buy(req.body.results).then(function(data){
-        res.json(data)
-
+      BC.buy(req.body.results).then((offer) => {
+        res.json(offer)
       })
+
       // req.body {buy:["MSFT", AAPL], sell:[]}
       // return {}
     })

@@ -1,14 +1,15 @@
-module.exports = class Strategy{
-  constructor(name, portfolio, handler){
-    this.name = name
-    this.Handler = handler
-    this.portfolio = portfolio
+const Portfolio = require("./portfolio.js")
+
+
+module.exports = class Strategy extends Portfolio{
+  constructor(name, handler){
+    super(name, handler)
     this.daysToOfferInView = 200
   }
 
   getStockDataToPlot(symbol){
     let res = []
-    let dateList = Object.keys(this.portfolio.getStockData(symbol))
+    let dateList = Object.keys(this.getStockData(symbol))
     dateList.sort()
     dateList.reverse()
     let counter = 0
@@ -16,7 +17,7 @@ module.exports = class Strategy{
       if (counter > this.daysToOfferInView) { break }
       res.push({
         date: date,
-        value: this.portfolio.getStockData(symbol)[date]["4. close"]
+        value: this.getStockData(symbol)[date]["4. close"]
       })
       counter++
     }
@@ -31,7 +32,7 @@ module.exports = class Strategy{
       sell:[]
     }
 
-    for (let symbol of this.portfolio.getSymbols()) {
+    for (let symbol of this.getSymbols()) {
       console.log(symbol);
       let item = { symbol: symbol }
       let list50 = this.calculateAverage(symbol, this.shortTerm, true)

@@ -28,7 +28,7 @@ class Portfolio{
             return
           }
           data = JSON.parse(data)
-          _this.name = data.name
+          // _this.name = data.name
           _this.balanceLeft = data.balanceLeft
           _this.risk = data.risk
           _this.symbols_wishlist = data.symbols_wishlist
@@ -55,13 +55,32 @@ class Portfolio{
     return ret
   }
   returnStocks(stockList){
-    for(stock of stockList){
+    // console.log("returnStocks");
+    // console.log(stockList);
+    for(let stock of stockList){
+
       this.stockGroup[stock.symbol].stocks.push(stock)
     }
   }
   addToBalance(money){this.balanceLeft = this.balanceLeft + money}
   getSymbols(){return this.symbols_wishlist}
+  getSymbolsIOwn(){
+    let symbolsIOwn = []
+    for(let stockGroup of Object.keys(this.stockGroup)){
+      if (this.stockGroup[stockGroup].stocks.length != 0) {
+        symbolsIOwn.push(stockGroup)
+      }
+    }
+    return symbolsIOwn
+  }
   getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
+  getTotalValueToday(q){
+    let totalValue = 0
+    for(let symbol of this.getSymbolsIOwn()){
+        totalValue = totalValue + (q[symbol]['4. close'])*this.stockGroup[symbol].stocks.length
+    }
+    return totalValue// + this.balanceLeft
+  }
   getQoute(symbol, days){
       var _this = this
       return new Promise(function(resolve, reject){
@@ -136,6 +155,56 @@ class Portfolio{
     }
     console.log(this.symbols_wishlist)
     return false
+  }
+
+  sell(sellList){
+    if (sellList === []) {return}
+
+    let _this = this
+    let stocksToSell = []
+    for (let symbolToSell of sellList){
+      let stocks = this.getAndRemoveStocks(symbolToSell.symbol)
+      stocksToSell = stocksToSell + stocks
+    }
+
+    request({
+      url: 'http://localhost:4001/sell',
+      method: "POST",
+      json: {results: stocksToSell}
+      },
+      (err, res, q) => {
+        console.log(q);
+        if (err) { console.log(err); return }
+        console.log("SELL RETURNS");
+        _this.returnStocks(q.returns)
+        _this.addToBalance(q.ackumulatedPrice)
+    })
+  }
+
+  buy(buyList){
+    let _this = this
+    for (let symbolToBuy of buyList){
+      let moneyToSpend = this.getMoneyLeft()
+      request({
+        url: 'http://localhost:4001/buy',
+        method: "POST",
+        json: {results: symbolToBuy}
+        },
+        (err, res, q) => {
+
+          // Have i reached the risk limit?
+
+          // Can I afford to take the offer?
+          // If so, register trade
+          for(let stock of q.results){
+            if (_this.balanceLeft - stock.price >= 0) {
+              _this.balanceLeft = _this.balanceLeft - stock.price
+              //console.log("BUY RETURNS");
+              _this.returnStocks([stock])
+            }
+          }
+        })
+    }
   }
 
   writePortfolioToFile(){

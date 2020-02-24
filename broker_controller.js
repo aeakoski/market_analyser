@@ -1,6 +1,5 @@
 var fs = require('fs')
 var moment = require('moment')
-
 const request = require('request');
 
 var dayCounter = 1
@@ -60,9 +59,13 @@ exports.getBacklog = function(symbol, backlog){
 }
 
 exports.sell = async function(sellList){
+  if (sellList.length === 0) {
+    return { ackumulatedPrice: 0, returns:[] }
+  }
   returnsList = []
   // sellList.results [{symbol: "MSFT", id:203345453201}, {}, {}]
-  console.log(sellList.results.map(x => x.symbol));
+  console.log("Wants to sell the following");
+  console.log(sellList);
   let returnPrice = 0
   let p = exports.getTodaysQoutes(sellList.results.map(x => x.symbol)).then(function(prices){
     for(let stock of sellList.results){
@@ -79,22 +82,21 @@ exports.sell = async function(sellList){
 
 
 exports.buy = async function(buyList){
-  // buyList [{symbol: "MSFT", amount:2}, {}, {}]
-  console.log("Client wants to buy");
-  console.log(buyList);
-  let returnStocks = {}
+  let offerList = []
+  console.log("Client wants to buy " + buyList.symbol);
   let p = exports.getTodaysQoutes([buyList.symbol]).then(function(prices){
     // Check for weekend
-    console.log("Prices delivered to Buy");
-    console.log(prices);
     if (Object.keys(prices).length === 1) {
-      return returnStocks
+      console.log("Weekend - No prices for " + buyList.symbol);
+      return {results: offerList}
     }
-    returnStocks[buyList.symbol] = []
+    //console.log(prices);
+    console.log("Price at: " + prices[buyList.symbol]['4. close']);
     let NUMBER_OF_STOCKS_TO_OFFER = 3
     for (let i = 0; i < NUMBER_OF_STOCKS_TO_OFFER; i++) {
       // Buy a stock
       let stockObj = {}
+      stockObj.symbol = buyList.symbol
       // Get price
       stockObj.price = parseFloat(prices[buyList.symbol]["4. close"]) * 1.01
       // Get buydate
@@ -102,18 +104,15 @@ exports.buy = async function(buyList){
       // Get get ID
       stockObj.id = Math.floor(Math.random() * 1000000000000000)
 
-      // Offer the stock to the portfolio
-      request({
-        url: 'http://localhost:4000/api/offer',
-        method: "POST",
-        json: {results: stockObj}
-        },
-        (err, res, q) => {
-      })
+      console.log("Making an offer:");
+      console.log(stockObj);
+      offerList.push(stockObj)
     }
+    // console.log(offerList);
+    // Offer the stock to the portfolio
   })
   await p
-  return returnStocks
+  return {results: offerList}
 }
 
 exports.incrementDate = function(){

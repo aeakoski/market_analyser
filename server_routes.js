@@ -13,9 +13,9 @@ module.exports = function(app, Handler) {
       res.send("OK")
     })
 
-  app.route('api/offer')
+  app.route('/api/offer')
     .post(function(req, res){
-      outcome = Handler.manageOffer(req.body)
+      let outcome = Handler.manageOffer(req.body)
       res.send(outcome)
     })
 

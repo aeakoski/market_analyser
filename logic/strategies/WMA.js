@@ -5,8 +5,8 @@ const StockGroup = require('../stock_group');
 const Strategy = require("../strategy.js")
 
 module.exports = class WMA extends Strategy{
-  constructor(name, portfolio, handler, shortTerm, longTerm){
-    super(name, portfolio, handler)
+  constructor(name, handler, shortTerm, longTerm){
+    super(name, handler)
     this.shortTerm = shortTerm
     this.longTerm = longTerm
   }
@@ -23,7 +23,7 @@ module.exports = class WMA extends Strategy{
 
   calculateAverage(symbol, n){
     let resList = []
-    let stockData = this.portfolio.getStockData(symbol)
+    let stockData = this.getStockData(symbol)
     let aa = Object.keys(stockData).sort().reverse()
     for (let i = 0; i < this.daysToOfferInView; i++) {
       let avgList = []
