@@ -53,7 +53,10 @@ export class DepotService {
     // Afterwards call for new data to plot
     this.http.get("http://localhost:4000/api/newday")
     .subscribe({
-      next: res => {
+      next: res => {},
+      error: err => console.error(err),
+      complete: () => {
+        console.log('Observer got a complete notification')
         this._getStrategies().subscribe({
           next: result => {
             this.strategies_object = result;
@@ -63,9 +66,7 @@ export class DepotService {
           error: err => console.error(err),
           complete: () => console.log('Observer got a complete notification'),
         });
-      },
-      error: err => console.error(err),
-      complete: () => console.log('Observer got a complete notification'),
+      }
     });
   }
 

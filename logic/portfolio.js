@@ -8,6 +8,8 @@ class Portfolio{
   constructor(name, handler){
     this.name = name
     this.Handler = handler
+    this.dateValue = [] // [{date:xxxx-xx-xx, value:xxx.xx}, {{date:xxxx-xx-xx, value:xxx.xx}}...]
+    this.portfolioValueOverTime = []
     // this.name
     // this.balanceLeft
     // this.symbols_wishlist
@@ -74,12 +76,12 @@ class Portfolio{
     return symbolsIOwn
   }
   getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
-  getTotalValueToday(q){
-    let totalValue = 0
+  getTotalValue(q){
+    let _stocksValue = 0
     for(let symbol of this.getSymbolsIOwn()){
-        totalValue = totalValue + (q[symbol]['4. close'])*this.stockGroup[symbol].stocks.length
+        _stocksValue = _stocksValue + (q[symbol]['4. close'])*this.stockGroup[symbol].stocks.length
     }
-    return totalValue// + this.balanceLeft
+    return {stocksValue: _stocksValue, totalValue: _stocksValue + this.balanceLeft}
   }
   getQoute(symbol, days){
       var _this = this
@@ -92,8 +94,15 @@ class Portfolio{
         })
       })
     }
-  debug(){
+
+  saveTodaysPortfolioValue(q){
+    let valueObject = this.getTotalValue(q)
+    valueObject.date = q.date
+    this.portfolioValueOverTime.push(valueObject)
   }
+
+  debug(){console.log("Called Portfolio.debug() not implemented yet");}
+
 
   addNewQoute(q){
     for(let symbol of Object.keys(q)){
@@ -157,54 +166,76 @@ class Portfolio{
     return false
   }
 
-  sell(sellList){
-    if (sellList === []) {return}
+  async sell(sellList){
+    if (sellList.length == 0) {return}
 
     let _this = this
     let stocksToSell = []
     for (let symbolToSell of sellList){
       let stocks = this.getAndRemoveStocks(symbolToSell.symbol)
-      stocksToSell = stocksToSell + stocks
+      stocksToSell = stocksToSell.concat(stocks)
     }
+    // console.log("Trying to sell:");
+    // console.log(stocksToSell);
 
-    request({
-      url: 'http://localhost:4001/sell',
-      method: "POST",
-      json: {results: stocksToSell}
-      },
-      (err, res, q) => {
-        console.log(q);
-        if (err) { console.log(err); return }
-        console.log("SELL RETURNS");
-        _this.returnStocks(q.returns)
-        _this.addToBalance(q.ackumulatedPrice)
-    })
-  }
-
-  buy(buyList){
-    let _this = this
-    for (let symbolToBuy of buyList){
-      let moneyToSpend = this.getMoneyLeft()
+    return new Promise(function(resolve, reject) {
       request({
-        url: 'http://localhost:4001/buy',
+        url: 'http://localhost:4001/sell',
         method: "POST",
-        json: {results: symbolToBuy}
+        json: {results: stocksToSell}
         },
         (err, res, q) => {
+          if (err) { console.log(err); return }
+          _this.returnStocks(q.returns)
+          _this.addToBalance(q.ackumulatedPrice)
+          resolve(true)
+      })
+    });
+  }
 
+  async askToBuyStock(symbolToBuy){
+    let _this = this
+    let buyAPIsettings = {
+      url: 'http://localhost:4001/buy',
+      method: "POST",
+      json: {results: symbolToBuy}
+      }
+    return new Promise(function(resolve, reject) {
+      request(buyAPIsettings,
+        (err, res, q) => {
           // Have i reached the risk limit?
 
           // Can I afford to take the offer?
+
           // If so, register trade
           for(let stock of q.results){
             if (_this.balanceLeft - stock.price >= 0) {
               _this.balanceLeft = _this.balanceLeft - stock.price
               //console.log("BUY RETURNS");
-              _this.returnStocks([stock])
+              // console.log("Prowd owner of: ");
+              // console.log(stock);
+              _this.returnStocks([stock]) // Add stock object to portfolio
             }
           }
+          resolve(true)
         })
-    }
+    });
+  }
+
+  async buy(buyList){
+    return new Promise(async (resolve, reject) => {
+      let pendingTrades = []
+      // Ask for an offer on all positive stocks
+      for (let symbolToBuy of buyList){
+        let moneyToSpend = this.getMoneyLeft()
+        pendingTrades.push(this.askToBuyStock(symbolToBuy))
+      }
+      for(let pendingTrade of pendingTrades){
+        await pendingTrade
+      }
+      resolve(true)
+    });
+
   }
 
   writePortfolioToFile(){

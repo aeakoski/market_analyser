@@ -59,7 +59,10 @@ exports.getBacklog = function(symbol, backlog){
 }
 
 exports.sell = async function(sellList){
-  if (sellList.length === 0) {
+  if (sellList.length == 0) {
+    return { ackumulatedPrice: 0, returns:[] }
+  }
+  if (sellList == '') {
     return { ackumulatedPrice: 0, returns:[] }
   }
   returnsList = []

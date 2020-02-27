@@ -39,7 +39,6 @@ module.exports = class Handler {
     let res = {}
     for(let name of Object.keys(this.strategiePortfolios)){
         res[name] = {}
-        console.log("Get plot data loop: " + name);
         for (let symbol of this.strategiePortfolios[name].getSymbols()){
           res[name][symbol] = {
             regular:this.strategiePortfolios[name].getStockDataToPlot(symbol),
@@ -55,48 +54,63 @@ module.exports = class Handler {
 
   getWishlist(portfolioName){ return this.strategiePortfolios[portfolioName].getSymbols() } // NEXT UP: NEED TO HAVE SYMBOLS LIST
 
-  _newDay(){
-
+  async _newDay(){
+    let _this = this
     for(let portfolioName of Object.keys(this.strategiePortfolios)){
-      console.log("Total Value of " + portfolioName + ": " + this.strategiePortfolios[portfolioName].balanceLeft);
       // Get the symbols
       let _symbols = this.strategiePortfolios[portfolioName].getSymbols()
       // Create request to the broker
-      request({
-        url: 'http://localhost:4001/newday',
-        method: "POST",
-        json: {symbols:_symbols}
-      }, (err, res, q) => {
-        if(Object.keys(q).length === 1){
-          console.log("Weekend, nothing today");
-          return
-        }
-        // Recieve broker data
-        if (err) {
-          console.log("Got error");
-          console.log(err);
-          return
-        }
+      let pendingPortfolioCalculations = new Promise(async function(resolve, reject) {
+        request({
+          url: 'http://localhost:4001/newday',
+          method: "POST",
+          json: {symbols:_symbols}
+        }, async (err, res, q) => {
+          if(Object.keys(q).length == 1){
+            console.log("Weekend, nothing today");
+            resolve(true)
+            return
+          }
+          // Recieve broker data
+          if (err) {
+            console.log("Got error");
+            console.log(err);
+            resolve(true)
+            return
+          }
 
-        let _this = this
+          // Update portfolio with new qoutes
+          _this.strategiePortfolios[portfolioName].addNewQoute(q)
 
-        // Update portfolio with new qoutes
-        this.strategiePortfolios[portfolioName].addNewQoute(q)
+          // Calculate trends
+          // console.log("Calculating trend for: " + _this.strategiePortfolios[portfolioName].name);
+          let actions = _this.strategiePortfolios[portfolioName].calculateTrends()
 
-        // Calculate trends
-        console.log("Calculating trend for: " + this.strategiePortfolios[portfolioName].name);
-        let actions = this.strategiePortfolios[portfolioName].calculateTrends()
+          // SELL
+          // console.log("Selling");
+          let sellPromise = _this.strategiePortfolios[portfolioName].sell(actions.sell)
+          await sellPromise
 
-        // SELL
-        this.strategiePortfolios[portfolioName].sell(actions.sell)
+          // BUY
+          // console.log("Buying");
+          let buyPromise = _this.strategiePortfolios[portfolioName].buy(actions.buy)
+          await buyPromise
 
-        // BUY
-        this.strategiePortfolios[portfolioName].buy(actions.buy)
-
-        // CURRENT VALUE
-        console.log("Total Value of " + portfolioName + ": " + this.strategiePortfolios[portfolioName].getTotalValueToday(q));
-
-      })
+          // CURRENT VALUE
+          let curentPortfolioValue = _this.strategiePortfolios[portfolioName].getTotalValue(q)
+          console.log("Total Value of " + portfolioName + ": " + curentPortfolioValue.totalValue);
+          _this.strategiePortfolios[portfolioName].saveTodaysPortfolioValue(q)
+          resolve(true)
+        })
+      });
+      await pendingPortfolioCalculations
     }
+    console.log("------------------------------------------");
+    request({
+      url: 'http://localhost:4001/incrementday',
+      method: "GET",
+      }, (err, res, q) => {}
+    )
+    return "OK"
   }
 }

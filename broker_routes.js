@@ -13,22 +13,21 @@ module.exports = function(app) {
   app.route('/newday')
     .post(function(req, res){
       BC.getTodaysQoutes(req.body.symbols).then(function(data, err){
-        BC.incrementDate()
-        // console.log("Todays qoutes is");
-        // console.log(data);
         res.json(data)
       })
     });
 
+  app.route('/incrementday')
+    .get(function(req, res){
+      // Send querry and fetch data
+      BC.incrementDate()
+    })
+
   app.route('/sell')
     .post(function(req, res){
-      //console.log(req)
-      //console.log(JSON.parse(req.body))
       BC.sell(req.body).then(function(data){
         res.json(data)
       })
-      // req.body {buy:["MSFT", AAPL], sell:[]}
-      // return {}
     })
 
 

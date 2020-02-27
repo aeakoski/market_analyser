@@ -21,8 +21,8 @@ module.exports = function(app, Handler) {
 
   app.route('/api/newday')
     .get(function(req, res){
-      Handler._newDay()
-      res.json({status:"OK"})
+      Handler._newDay().then(_status => res.json({status:_status}))
+
     })
 
   app.route('/api/plotdata')
