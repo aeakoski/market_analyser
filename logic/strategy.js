@@ -33,7 +33,7 @@ module.exports = class Strategy extends Portfolio{
         console.log(" ");
   }
 
-  calculateTrends(){
+  getDesiredActions(){
     var _this = this
     let gettingQoutes = 0
 
@@ -41,7 +41,7 @@ module.exports = class Strategy extends Portfolio{
       buy:[],
       sell:[]
     }
-
+    
     for (let symbol of this.getSymbols()) {
       let item = { symbol: symbol }
       let list50 = this.calculateAverage(symbol, this.shortTerm, true)

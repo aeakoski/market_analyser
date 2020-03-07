@@ -84,9 +84,11 @@ module.exports = class Handler {
           // Update portfolio with new qoutes
           _this.strategiePortfolios[portfolioName].addNewQoute(q)
 
+          // Get desired actions
           // Calculate trends
           // console.log("Calculating trend for: " + _this.strategiePortfolios[portfolioName].name);
-          let actions = _this.strategiePortfolios[portfolioName].calculateTrends()
+          // let actions = _this.strategiePortfolios[portfolioName].calculateTrends()
+          let actions = _this.strategiePortfolios[portfolioName].getDesiredActions()
 
           // SELL
           // console.log("Selling");
