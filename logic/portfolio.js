@@ -10,13 +10,7 @@ class Portfolio{
     this.Handler = handler
     this.dateValue = [] // [{date:xxxx-xx-xx, value:xxx.xx}, {{date:xxxx-xx-xx, value:xxx.xx}}...]
     this.portfolioValueOverTime = []
-    // this.name
-    // this.balanceLeft
-    // this.symbols_wishlist
-    // this.investedCapital
-    // this.assetsInStocks
-    // this.risk
-
+    this.totalValueOverTime = {}
     this.risk = 0.3
 
     var _this = this
@@ -57,10 +51,7 @@ class Portfolio{
     return ret
   }
   returnStocks(stockList){
-    // console.log("returnStocks");
-    // console.log(stockList);
     for(let stock of stockList){
-
       this.stockGroup[stock.symbol].stocks.push(stock)
     }
   }
@@ -76,13 +67,23 @@ class Portfolio{
     return symbolsIOwn
   }
   getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
-  getTotalValue(q){
+
+  calculateTodaysTotalPortfolioValue(q){
     let _stocksValue = 0
     for(let symbol of this.getSymbolsIOwn()){
         _stocksValue = _stocksValue + (q[symbol]['4. close'])*this.stockGroup[symbol].stocks.length
     }
-    return {stocksValue: _stocksValue, totalValue: _stocksValue + this.balanceLeft}
+    this.totalValueOverTime[q.date] = {
+      stocksValue: _stocksValue,
+      totalValue: _stocksValue + this.balanceLeft,
+      date: q.date
+    }
   }
+
+  getPortfolioValues(){
+    return this.totalValueOverTime
+  }
+
   getQoute(symbol, days){
       var _this = this
       return new Promise(function(resolve, reject){
@@ -94,12 +95,6 @@ class Portfolio{
         })
       })
     }
-
-  saveTodaysPortfolioValue(q){
-    let valueObject = this.getTotalValue(q)
-    valueObject.date = q.date
-    this.portfolioValueOverTime.push(valueObject)
-  }
 
   debug(){console.log("Called Portfolio.debug() not implemented yet");}
 

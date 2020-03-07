@@ -35,17 +35,20 @@ module.exports = class Handler {
   }
 
   getPlotData(){
-    // console.log("Serving plot data for " + portfolioName);
     let res = {}
-    for(let name of Object.keys(this.strategiePortfolios)){
-        res[name] = {}
-        for (let symbol of this.strategiePortfolios[name].getSymbols()){
-          res[name][symbol] = {
-            regular:this.strategiePortfolios[name].getStockDataToPlot(symbol),
-            _50:this.strategiePortfolios[name].calculateAverage(symbol, 10),
-            _200:this.strategiePortfolios[name].calculateAverage(symbol, 50)
+    for(let portfolioName of Object.keys(this.strategiePortfolios)){
+        res[portfolioName] = {}
+        res[portfolioName]["stocks"] = {}
+        res[portfolioName]["values"] = {}
+        for (let symbol of this.strategiePortfolios[portfolioName].getSymbols()){
+          res[portfolioName]["stocks"][symbol] = {
+            regular:this.strategiePortfolios[portfolioName].getStockDataToPlot(symbol),
+            _50:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 10),
+            _200:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 50)
           }
         }
+        // Insert portfolio values here
+        res[portfolioName]["values"] = this.strategiePortfolios[portfolioName].getPortfolioValues()
     }
 
     return res
@@ -96,10 +99,12 @@ module.exports = class Handler {
           let buyPromise = _this.strategiePortfolios[portfolioName].buy(actions.buy)
           await buyPromise
 
-          // CURRENT VALUE
-          let curentPortfolioValue = _this.strategiePortfolios[portfolioName].getTotalValue(q)
-          console.log("Total Value of " + portfolioName + ": " + curentPortfolioValue.totalValue);
-          _this.strategiePortfolios[portfolioName].saveTodaysPortfolioValue(q)
+          // SAVE PORTFOLIOS CURRENT VALUE
+          _this.strategiePortfolios[portfolioName].calculateTodaysTotalPortfolioValue(q)
+
+          // let curentPortfolioValue = _this.strategiePortfolios[portfolioName].getTotalValue(q)
+          // console.log("Total Value of " + portfolioName + ": " + curentPortfolioValue.totalValue);
+          // _this.strategiePortfolios[portfolioName].saveTodaysPortfolioValue(q)
           resolve(true)
         })
       });
