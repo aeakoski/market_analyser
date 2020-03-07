@@ -33,27 +33,5 @@ module.exports = class SMA extends Strategy{
     resList.reverse()
     return resList
   }
-  //
-  // async calculateTrends(){
-  //   var _this = this
-  //   let gettingQoutes = 0
-  //   for (let symbol of this.portfolio.getSymbols()) {
-  //     console.log(symbol);
-  //     // Update the AVG lists for the stockgroup
-  //     let list50 = this.calculateAverage(symbol, this.shortTerm, true)
-  //     let list200 = this.calculateAverage(symbol, this.longTerm, true)
-  //
-  //     let shortTermAverage = list50[list50.length-1].value
-  //     let longTermAverage = list200[list200.length-1].value
-  //
-  //     if (shortTermAverage > longTermAverage) {
-  //       //console.log("Trend - Percent " + (shortTermAverage.avg-longTermAverage.avg)/shortTermAverage.avg);
-  //       console.log("Tred UP - BUY " + (shortTermAverage + ", " + longTermAverage));
-  //     } else {
-  //       //console.log("Trend - Percent " + (longTermAverage.avg-shortTermAverage.avg)/longTermAverage.avg);
-  //       console.log("Tred DOWN - SELL " + (longTermAverage + ", " + shortTermAverage));
-  //     }
-  //     console.log(" ");
-  //   }
-  // }
+
 }

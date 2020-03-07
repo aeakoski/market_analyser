@@ -50,7 +50,6 @@ module.exports = class Handler {
         // Insert portfolio values here
         res[portfolioName]["values"] = this.strategiePortfolios[portfolioName].getPortfolioValues()
     }
-
     return res
   }
 
@@ -102,9 +101,6 @@ module.exports = class Handler {
           // SAVE PORTFOLIOS CURRENT VALUE
           _this.strategiePortfolios[portfolioName].calculateTodaysTotalPortfolioValue(q)
 
-          // let curentPortfolioValue = _this.strategiePortfolios[portfolioName].getTotalValue(q)
-          // console.log("Total Value of " + portfolioName + ": " + curentPortfolioValue.totalValue);
-          // _this.strategiePortfolios[portfolioName].saveTodaysPortfolioValue(q)
           resolve(true)
         })
       });
