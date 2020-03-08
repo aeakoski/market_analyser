@@ -98,7 +98,12 @@ export class TabComponent implements OnInit {
     this.svgs["totalValue"].append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + this.height + ")")
-    .call(d3.axisBottom(x));
+    .call(d3.axisBottom(x))
+    .selectAll("text")
+    .attr("y", 0)
+    .attr("x", 9)
+    .attr("transform", "rotate(90)")
+    .style("text-anchor", "start")
     // Add Y axis
     var y = d3.scaleLinear()
     .domain([ymin, ymax])
@@ -144,7 +149,12 @@ export class TabComponent implements OnInit {
         this.svgs[symbol].append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + this.height + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("y", 0)
+        .attr("x", 9)
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start")
         // Add Y axis
         var y = d3.scaleLinear()
         .domain([ymin, ymax])
