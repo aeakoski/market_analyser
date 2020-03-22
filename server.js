@@ -1,19 +1,35 @@
 const fetch = require('node-fetch')
 const fs = require('fs')
-const Brain = require('./brain');
+//const Brain = require('./logic/brain');
+const Handler = require('./logic/handler');
+
+const bodyParser = require('body-parser');
+const express = require('express'); // Express
+const routes = require('./server_routes'); //importing route
+const app = express();
+
+const html = __dirname + '/html';
+const port = 4000;
+
+app
+  .use(bodyParser.json())
+  .use(bodyParser.urlencoded({ extended: true }))
+  .use(express.static(html)) // Static content
+  .use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next()
+  })
 
 
-async function main () {
-  var Brain1 = new Brain.Brain()
+let handler = new Handler()
 
-  let p1 = Brain1.readApiKey().then(function (done) {done})
-  let p2 = Brain1.readSymbols().then(function (done) {done})
-  await p1
-  await p2
+// var _Brain = new Brain.Brain()
+// _Brain.initStrategies(this)
 
-  Brain1.getStockData()
+routes(app, handler)
 
-
-}
-
-main()
+app.listen(port, function () {
+      console.log('Port: ' + port);
+      console.log('Html: ' + html);
+  }); // Start server

@@ -1,0 +1,24 @@
+{
+  "name": "MA_50_200",
+  "balanceLeft": 100000,
+  "risk": 0.1,
+  "symbols_wishlist": [
+  "AAPL",
+  "DIS",
+  "GOOGL",
+  "BP",
+  "V",
+  "AXP",
+  "CMG",
+  "MSFT",
+  "BRK.A",
+  "MMM",
+  "HON",
+  "BBY",
+  "C",
+  "MA"
+  ],
+  "owns": [
+
+  ]
+}
