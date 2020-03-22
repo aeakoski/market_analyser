@@ -5,6 +5,7 @@ from gtts import gTTS # Google text to speach
 from afinn import Afinn # Sentiment analysis
 import requests # Web requests
 import statistics
+import csv
 
 class Report:
     def __init__(self, text, scores, sentiment, date):
@@ -17,32 +18,48 @@ class Report:
 
 
 
+def init_omxs30():
+    # Headers; date;high;low;close;mean;vol;Oms;
+    result = {}
+    with open('data/omxs30.csv', mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter = ";")
+        for row in csv_reader:
+            result[row["date"]] = row
+
+    # csv_reader.sort(key=lambda x: x["Datum"], reverse=True)
+    return result
+
+
 NUMBER_OF_REPORTS_TO_FETCH = 100
 SENTIMENTS = []
 
-afinn = Afinn(language='sv', emoticons=True)
+def main():
+    afinn = Afinn(language='sv', emoticons=True)
 
-url = 'https://research.sebgroup.com/mapi/reports?reporttype=Morning%20Alert&nbrows='+str(NUMBER_OF_REPORTS_TO_FETCH)
-res = requests.get(url)
-res = res.json()["reports"]
-for i in range(0, NUMBER_OF_REPORTS_TO_FETCH):
-    # "publishedDate": "2020-03-20T07:00:41.235976+01:00" Split at 'T'
-    html_doc = res[i]["sections"][-1]["text"]
+    omx = init_omxs30()
+    print(omx["2020-03-19"])
+    
+    return
 
-    soup = BeautifulSoup(html_doc, 'html.parser')
-    report = ""
-    for j in soup.find_all("p", recursive=False):
-        report = report + j.text
-    pub_date = res[i]["publishedDate"].split("T")[0]
-    # score = afinn.score(report)
-    scores = afinn.scores_with_pattern(report)
-    SENTIMENTS.append(Report(report, scores, sum(scores), pub_date))
+    url = 'https://research.sebgroup.com/mapi/reports?reporttype=Morning%20Alert&nbrows='+str(NUMBER_OF_REPORTS_TO_FETCH)
+    res = requests.get(url)
+    res = res.json()["reports"]
+    for i in range(0, NUMBER_OF_REPORTS_TO_FETCH):
+        html_doc = res[i]["sections"][-1]["text"]
+        soup = BeautifulSoup(html_doc, 'html.parser')
+        report = ""
+        for j in soup.find_all("p", recursive=False):
+            report = report + j.text
+        pub_date = res[i]["publishedDate"].split("T")[0]
+        scores = afinn.scores_with_pattern(report)
+        SENTIMENTS.append(Report(report, scores, sum(scores), pub_date))
 
-print(type(SENTIMENTS[0].sscore))
-print(statistics.mean(map(lambda i: i.sscore, SENTIMENTS)))
-print("Date\tScore\tnrofwords\n")
-for i in SENTIMENTS:
-    print(i)
+    print(statistics.mean(map(lambda i: i.sscore, SENTIMENTS)))
+    print("Date\tScore\tnrofwords\n")
+    for i in SENTIMENTS:
+        print(i)
 
-#tts = gTTS(SENTIMENTS[0].text, lang='sv')
-#tts.save('report.mp3')
+    #tts = gTTS(SENTIMENTS[0].text, lang='sv')
+    #tts.save('report.mp3')
+
+main()
