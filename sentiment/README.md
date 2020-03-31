@@ -8,7 +8,7 @@ To the AFINN package in directory:
 `/usr/local/lib/python2.7/dist-packages/afinn/data`
 
 Add the following file:
-https://github.com/fnielsen/afinn/blob/master/afinn/data/AFINN-sv-165.txt
+https://raw.githubusercontent.com/fnielsen/afinn/master/afinn/data/AFINN-sv-165.txt
 
 And in the file `/usr/local/lib/python2.7/dist-packages/afinn/afinn.py`
 Change

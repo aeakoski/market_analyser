@@ -9,8 +9,10 @@ import csv
 import matplotlib.pyplot as plt
 import string
 
-NUMBER_OF_REPORTS_TO_FETCH = 6 #300
+NUMBER_OF_REPORTS_TO_FETCH = 300 #300
 REPORTS = []
+
+trainingData = {}
 
 class Report:
     def __init__(self, text, scores, sentiment, date, openAt, closeAt):
@@ -25,6 +27,7 @@ class Report:
     def __str__(self):
         return self.date + " \t " + str(self.sscore) + " \t " + str(len(self.sscores))
     def create2gram(self):
+
         cleanText = ""
         for char in self.text:
             if char.isalpha():
@@ -35,7 +38,6 @@ class Report:
         if cleanText[-1] == " ":
             cleanText = cleanText[:-1]
 
-        print(cleanText)
         cleanTextList = cleanText.split(" ")
         for i in range(len(cleanTextList)):
             if i+1 == len(cleanTextList):
@@ -45,13 +47,19 @@ class Report:
             except KeyError:
                 self._2gram[cleanTextList[i] + " " + cleanTextList[i+1]] = 1
 
+            try:
+                trainingData[cleanTextList[i] + " " + cleanTextList[i+1]].append(self.omxClose-self.omxOpen)
+            except KeyError:
+                trainingData[cleanTextList[i] + " " + cleanTextList[i+1]] = [self.omxClose-self.omxOpen]
+
         toPrint = []
         for i in self._2gram.keys():
             toPrint.append((i, self._2gram[i]))
         toPrint.sort(key = lambda x : x[1])
 
-        for i in toPrint:
-            print i[0]
+        # for i in toPrint:
+        #     print i[0]
+
 
 def init_omxs30():
     # Headers; date;high;low;close;mean;vol;Oms;
@@ -110,6 +118,19 @@ def main():
     for report in REPORTS:
         print("Report")
         report.create2gram()
+
+    with open("training.csv", "w") as csvf:
+        spamwriter = csv.writer(csvf, quotechar='\"')
+        spamwriter.writerow(["ngram", "mean", "wheight", "stdev"])
+        for i in trainingData.keys():
+            # if len(trainingData[i]) == 1:
+            #     continue
+            print(i)
+            print(trainingData[i])
+            stdev = -1
+            if len(trainingData[i]) > 1:
+                stdev = statistics.stdev(trainingData[i])
+                spamwriter.writerow([str(i.encode("utf-8")), statistics.mean(trainingData[i]), len(trainingData[i]), stdev])
 
     # print(statistics.mean(map(lambda i: i.sscore, REPORTS)))
     # print("Date\tScore\tnrofwords\n")
