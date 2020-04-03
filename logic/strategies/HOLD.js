@@ -7,6 +7,14 @@ const Strategy = require("../strategy.js")
 module.exports = class HOLD extends Strategy{
   constructor(name, handler){
     super(name, handler)
+    this.shortTerm = 2
+    this.longTerm = 1
+  }
+
+  calculateAverage(symbol, n){
+    let resList = []
+
+    return [{value:n}]
   }
 
 }

@@ -4,6 +4,7 @@ const Portfolio = require('./portfolio');
 const SMA = require('./strategies/SMA')
 const WMA = require('./strategies/WMA')
 const EMA = require('./strategies/EMA')
+const HOLD = require('./strategies/HOLD')
 
 module.exports = class Handler {
   constructor(){
@@ -11,6 +12,7 @@ module.exports = class Handler {
     this.strategiePortfolios["SMA"] = new SMA("SMA", this, 10, 50)
     this.strategiePortfolios["WMA"] = new WMA("WMA", this, 10, 50)
     this.strategiePortfolios["EMA"] = new EMA("EMA", this, 10, 50)
+    this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this)
   }
 
   status(){

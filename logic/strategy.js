@@ -41,11 +41,12 @@ module.exports = class Strategy extends Portfolio{
       buy:[],
       sell:[]
     }
-    
+
     for (let symbol of this.getSymbols()) {
       let item = { symbol: symbol }
       let list50 = this.calculateAverage(symbol, this.shortTerm, true)
       let list200 = this.calculateAverage(symbol, this.longTerm, true)
+
       let shortTermAverage = list50[list50.length-1].value
       let longTermAverage = list200[list200.length-1].value
       let logObj = {
