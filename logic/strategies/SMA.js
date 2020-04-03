@@ -1,5 +1,6 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
+const moving_averages = require('moving-averages');
 const Stock = require('../stock');
 const StockGroup = require('../stock_group');
 const Strategy = require("../strategy.js")
@@ -13,10 +14,10 @@ module.exports = class SMA extends Strategy{
 
   arrAvg(arr){
     let sum = 0.0
-    for(let x of arr){
-      sum = sum + parseFloat(x)
+    if(arr.length){
+      sum = moving_averages.ma(arr, arr.length)[arr.length-1]
     }
-    return sum / arr.length
+    return sum
   }
 
   calculateAverage(symbol, n){
@@ -29,6 +30,7 @@ module.exports = class SMA extends Strategy{
         avgList.push(parseFloat(stockData[d]["4. close"]))
       }
       resList.push({date: aa[i], value:this.arrAvg(avgList), derivedFrom: avgList})
+
     }
     resList.reverse()
     return resList

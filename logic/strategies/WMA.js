@@ -1,5 +1,6 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
+const moving_averages = require('moving-averages');
 const Stock = require('../stock');
 const StockGroup = require('../stock_group');
 const Strategy = require("../strategy.js")
@@ -30,7 +31,9 @@ module.exports = class WMA extends Strategy{
       for (let d of aa.slice(i, i + n)){
         avgList.push(parseFloat(stockData[d]["4. close"]))
       }
-      resList.push({date: aa[i], value:this.arrAvgWheight(avgList), derivedFrom: avgList})
+      // resList.push({date: aa[i], value:this.arrAvgWheight(avgList), derivedFrom: avgList})
+
+      resList.push({date: aa[i], value:moving_averages.wma(avgList, avgList.length)[avgList.length-1], derivedFrom: avgList})
     }
     resList.reverse()
     return resList
