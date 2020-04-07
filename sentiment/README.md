@@ -28,3 +28,9 @@ LANGUAGE_TO_FILENAME = {
     'emoticons': 'AFINN-emoticon-8.txt',
     }
 ```
+
+## Execution pipeline
+
+1. Generate 2-grams from report data `python report_training.py`
+ * Generates a csv file `training.csv` contining **ngram**, **mean**, **wheight**, **stdev**
+2. Examine test data `jupyter notebook training_dash.ipynb`
