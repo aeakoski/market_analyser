@@ -30,6 +30,7 @@ export class TabComponent implements OnInit {
   stockGroupsKeys: any;
   stockGroups: any;
   svgs: any = {};
+  objectkeys = Object.keys;
 
   constructor(private depotService: DepotService) {}
 
@@ -49,6 +50,7 @@ export class TabComponent implements OnInit {
     }
     this.createChartCanvasesIn("valueArea", ["totalValue"])
     this.initValueLine()
+
 
     this.depotService.newDayData.subscribe((data) => {
       this.updateChartData()
@@ -79,6 +81,7 @@ export class TabComponent implements OnInit {
     }
     return m
   }
+
 
   initValueLine(){
     let values = this.depotService.getActiveStrategy()["values"]

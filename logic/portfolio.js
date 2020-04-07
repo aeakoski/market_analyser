@@ -8,10 +8,11 @@ class Portfolio{
   constructor(name, handler){
     this.name = name
     this.Handler = handler
-    this.dateValue = [] // [{date:xxxx-xx-xx, value:xxx.xx}, {{date:xxxx-xx-xx, value:xxx.xx}}...]
+    //this.dateValue = [] // [{date:xxxx-xx-xx, value:xxx.xx}, {{date:xxxx-xx-xx, value:xxx.xx}}...]
     this.portfolioValueOverTime = []
     this.totalValueOverTime = {}
     this.risk = 0.3
+    // this.stockGroup
 
     var _this = this
     let p = new Promise(
@@ -45,6 +46,9 @@ class Portfolio{
   getPortfolioName(){ return this.name }
   getStockroup(){ return this.stockGroup }
   getMoneyLeft(){return this.balanceLeft}
+  getNumberOfStock(symbol){
+    return this.stockGroup[symbol].getNumberOfStocks()
+  }
   getAndRemoveStocks(symbol){
     let ret = this.stockGroup[symbol].stocks
     this.stockGroup[symbol].stocks = []

@@ -13,7 +13,7 @@ module.exports = {
 
     this.getSymbol = function(){ return this.symbol }
     this.getOriginalValue = function(){ return 1337 }
-    this.getNumOfStocks = function(){return 2}
+    this.getNumberOfStocks = function(){return this.stocks.length}
     this.getAllowedToSell = function(){return 3}
 
   }

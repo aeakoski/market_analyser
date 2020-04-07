@@ -46,7 +46,8 @@ module.exports = class Handler {
           res[portfolioName]["stocks"][symbol] = {
             regular:this.strategiePortfolios[portfolioName].getStockDataToPlot(symbol),
             _50:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 10),
-            _200:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 50)
+            _200:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 50),
+            nr_owned:this.strategiePortfolios[portfolioName].getNumberOfStock(symbol)
           }
         }
         // Insert portfolio values here

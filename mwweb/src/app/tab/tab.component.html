@@ -5,6 +5,14 @@
   <div class="box-m">
     <div id="valueArea"></div>
   </div>
+  <ul>
+    <ng-container *ngFor="let symbol of objectkeys(depotService.getActiveStrategy()['stocks'])">
+      <ng-container *ngIf="depotService.getActiveStrategy()['stocks'][symbol].nr_owned">
+        <li>{{symbol}}: {{depotService.getActiveStrategy()['stocks'][symbol].nr_owned}}st</li>
+      </ng-container>
+    </ng-container>
+
+  </ul>
 </div>
 
 <p></p>
