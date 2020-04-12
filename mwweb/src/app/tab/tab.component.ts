@@ -15,7 +15,6 @@ const LINE_SETINGS =  [{
   },
   ]
 
-
 @Component({
   selector: 'app-tab',
   templateUrl: './tab.component.html',
@@ -31,12 +30,14 @@ export class TabComponent implements OnInit {
   stockGroups: any;
   svgs: any = {};
   objectkeys = Object.keys;
+  mathround = Math.round;
 
   constructor(private depotService: DepotService) {}
 
   getTitle(){ return this.title }
 
   ngOnInit() {
+    console.log(this.depotService.getActiveStrategy()["values"])
     this.stockGroups = this.depotService.getActiveStrategy()["stocks"]
     if(this.stockGroups == -1){
       console.error("Something went wrong with seting the active strategy")
@@ -61,6 +62,15 @@ export class TabComponent implements OnInit {
       this.updateChartData()
       this.updateValueLine()
     })
+  }
+
+  getSymbols(){
+    let arr = []
+    for(let s of Object.keys(this.depotService.getActiveStrategy()['stocks'])){
+      arr.push({symbol:s, nr_owned:this.depotService.getActiveStrategy()['stocks'][s].nr_owned})
+    }
+    arr = arr.sort((a,b) => (a.nr_owned > b.nr_owned)?-1:1); // really any sort logic you want
+    return arr
   }
 
   mini(arr, val){
@@ -240,10 +250,6 @@ export class TabComponent implements OnInit {
   updateChartData(){
     this.stockGroups = this.depotService.getActiveStrategy()["stocks"]
     this.stockGroupsKeys = Object.keys(this.stockGroups)
-
-    console.log("updateChart")
-    console.log("---------------------------------------------")
-
     for (let symbol of this.stockGroupsKeys){
       let ymin = 99999
       let ymax = 0
@@ -255,9 +261,6 @@ export class TabComponent implements OnInit {
           ymax = this.maxi(this.stockGroups[symbol][_c.type], function(d) { return +d.value; })//d3.max(result[symbol][_c.type], function(d) { return +d.value; })
         }
       }
-
-      console.log(symbol + ": " + ymin + "->" + ymax )
-
       let svg = d3.select("#plot_" + symbol.replace(".","-")).transition();
       for (let c of LINE_SETINGS){
         // let data = this.stockGroups[symbol][c.type]

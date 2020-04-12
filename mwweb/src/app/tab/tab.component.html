@@ -1,20 +1,40 @@
-<div class="tab">
-  <div class="box-s">
-    <p>{{depotService.getActiveStrategyName()}}</p>
-  </div>
-  <div class="box-m">
-    <div id="valueArea"></div>
-  </div>
-  <ul>
-    <ng-container *ngFor="let symbol of objectkeys(depotService.getActiveStrategy()['stocks'])">
-      <ng-container *ngIf="depotService.getActiveStrategy()['stocks'][symbol].nr_owned">
-        <li>{{symbol}}: {{depotService.getActiveStrategy()['stocks'][symbol].nr_owned}}st</li>
-      </ng-container>
-    </ng-container>
+<div class="tab"> <!-- Upper overview pane-->
+  <div class="left">
+    <div class="box-s">
+      <h1>{{depotService.getActiveStrategyName()}}</h1>
+    </div>
+    <div class="stocks-overview">
 
-  </ul>
+      <ul>
+        <ng-container *ngFor="let symbol of getSymbols()">
+          <ng-container *ngIf="symbol.nr_owned">
+            <li>{{symbol.symbol}}: {{symbol.nr_owned}}st</li>
+          </ng-container>
+        </ng-container>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="right">
+    <div class="box-m">
+      <div id="valueArea"></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="right col">
+      <h2>Stocks</h2>
+      <h3>$ {{mathround(this.depotService.getActiveStrategy()["values"][this.depotService.getLatestDate()]["stocksValue"])}}</h3>
+    </div>
+    <div class="right col">
+      <h2>Fiat</h2>
+      <h3>$ {{mathround(this.depotService.getActiveStrategy()["values"][this.depotService.getLatestDate()]["totalValue"] - this.depotService.getActiveStrategy()["values"][this.depotService.getLatestDate()]["stocksValue"])}}</h3>
+    </div>
+  </div>
 </div>
 
-<p></p>
 
-<div id="stockArea"></div>
+<p></p> <!--Add for whitespace-->
+
+<div id="stockArea"></div> <!--Lower stock in depth pane-->

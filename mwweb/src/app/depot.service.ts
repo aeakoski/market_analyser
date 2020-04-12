@@ -20,7 +20,6 @@ export class DepotService {
     .subscribe({
       next: result => {
         this.strategies_object = result;
-        console.log(result);
         this.status = true;
       },
       error: err => console.error(err),
@@ -28,13 +27,16 @@ export class DepotService {
     });
   }
 
+  getLatestDate(){
+    return Object.keys(this.getActiveStrategy()["values"]).sort().reverse()[0]
+
+  }
   // Get strategies from server
   _getStrategies(){ return this.http.get("http://localhost:4000/api/plotdata") }
   // Get Strategies names
   getStrategiesNames() { return Object.keys(this.strategies_object) }
   getDataDownloadStatus(){ return this.status }
   setActiveStrategyName(s){
-    console.log("New strategy set: " + s)
     this.activeStrategy = s
     this.newStrategyChoice.next(s)
   }
@@ -60,7 +62,6 @@ export class DepotService {
         this._getStrategies().subscribe({
           next: result => {
             this.strategies_object = result;
-            console.log(result);
             this.status = true;
             this.newDayData.next(this.strategies_object);
           },
