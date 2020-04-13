@@ -12,8 +12,6 @@ module.exports = class HOLD extends Strategy{
   }
 
   calculateAverage(symbol, n){
-    let resList = []
-
     return [{value:n}]
   }
 

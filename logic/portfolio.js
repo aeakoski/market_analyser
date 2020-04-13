@@ -25,7 +25,6 @@ class Portfolio{
             return
           }
           data = JSON.parse(data)
-          // _this.name = data.name
           _this.balanceLeft = data.balanceLeft
           _this.risk = data.risk
           _this.symbols_wishlist = data.symbols_wishlist
@@ -73,10 +72,32 @@ class Portfolio{
   getStockData(symbol){return this.stockGroup[symbol].qoutes_400}
 
   calculateTodaysTotalPortfolioValue(q){
+    // Remove "date" key from list of updated Symbols
+    let symbolsThatHasChanged = Object.keys(q)
+    const obseleteIndex = symbolsThatHasChanged.indexOf("date");
+    if (obseleteIndex > -1) {
+      symbolsThatHasChanged.splice(obseleteIndex, 1);
+    }
+
+    // Update for symbols i recieved new prices for today
     let _stocksValue = 0
-    for(let symbol of this.getSymbolsIOwn()){
+    for(let symbol of symbolsThatHasChanged){
         _stocksValue = _stocksValue + (q[symbol]['close'])*this.stockGroup[symbol].stocks.length
     }
+
+    // Derive the symbols i did not recieve a price update for
+    let diff = []
+    for (let symbol of this.getSymbolsIOwn()) {
+      if (symbolsThatHasChanged.indexOf(symbol) == -1) {
+        diff.push(symbol)
+      }
+    }
+
+    // Update for symbols i did not recieve new prices for
+    for(let symbol of diff){
+      _stocksValue = _stocksValue + (this.stockGroup[symbol].latestPrice)*this.stockGroup[symbol].stocks.length
+    }
+
     this.totalValueOverTime[q.date] = {
       stocksValue: _stocksValue,
       totalValue: _stocksValue + this.balanceLeft,
@@ -107,6 +128,7 @@ class Portfolio{
     for(let symbol of Object.keys(q)){
       if(symbol === "date"){continue}
       this.stockGroup[symbol].qoutes_400[q.date] = q[symbol]
+      this.stockGroup[symbol].latestPrice = q[symbol]["close"]
     }
   }
 
@@ -124,9 +146,6 @@ class Portfolio{
                 reject(true)
               } // ConnectionError
               _this.stockGroup[result.symbol].qoutes_400 = result.values
-              // for(let date of Object.keys(_this.stockGroup[result.symbol].qoutes_400)){
-              //   _this.stockGroup[result.symbol].qoutes_400[date].value = _this.stockGroup[result.symbol].qoutes_400[date]["4. close"]
-              // }
 
               console.log("First time data got for " + result.symbol + ". " + Object.keys(result.values).length + " datapoints.");
               }))
@@ -144,24 +163,19 @@ class Portfolio{
   addToWishList(symbol){
     const index = this.symbols_wishlist.indexOf(symbol.toUpperCase());
     if (index > -1) {
-      console.log(this.symbols_wishlist)
       return false
     } else {
       this.symbols_wishlist.push(symbol.toUpperCase())
-      console.log(this.symbols_wishlist)
       return true
     }
   }
 
   deleteFromWishList(symbol){
-    console.log(symbol);
     const index = this.symbols_wishlist.indexOf(symbol.toUpperCase());
     if (index > -1) {
       this.symbols_wishlist.splice(index, 1);
-      console.log(this.symbols_wishlist)
       return true
     }
-    console.log(this.symbols_wishlist)
     return false
   }
 
@@ -210,9 +224,6 @@ class Portfolio{
           for(let stock of q.results){
             if (_this.balanceLeft - stock.price >= 0) {
               _this.balanceLeft = _this.balanceLeft - stock.price
-              //console.log("BUY RETURNS");
-              // console.log("Prowd owner of: ");
-              // console.log(stock);
               _this.returnStocks([stock]) // Add stock object to portfolio
             }
           }

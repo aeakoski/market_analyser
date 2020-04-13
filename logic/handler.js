@@ -84,6 +84,8 @@ module.exports = class Handler {
             return
           }
 
+          console.log(q.date);
+
           // Update portfolio with new qoutes
           _this.strategiePortfolios[portfolioName].addNewQoute(q)
 
@@ -111,7 +113,6 @@ module.exports = class Handler {
       });
       await pendingPortfolioCalculations
     }
-    console.log("------------------------------------------");
     request({
       url: 'http://localhost:4001/incrementday',
       method: "GET",
