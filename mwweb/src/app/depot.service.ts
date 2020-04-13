@@ -50,6 +50,16 @@ export class DepotService {
     return this.strategies_object[this.activeStrategy]
   }
 
+  sendUpdatedRestrictions(newRestrictions){
+    console.log("jAO!");
+    this.http.post("http://localhost:4000/api/restrictions", newRestrictions)
+      .subscribe({
+        next: result => {},
+        error: err => console.error(err),
+        complete: () => console.log('Observer got a complete notification'),
+      });
+  }
+
   callForNewDay(){
     // Call handler newday to trigger a new day
     // Afterwards call for new data to plot

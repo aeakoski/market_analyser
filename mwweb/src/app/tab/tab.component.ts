@@ -32,18 +32,28 @@ export class TabComponent implements OnInit {
   objectkeys = Object.keys;
   mathround = Math.round;
 
+  restrictions:any = {};
+
   constructor(private depotService: DepotService) {}
 
   getTitle(){ return this.title }
 
   ngOnInit() {
-    console.log(this.depotService.getActiveStrategy()["values"])
+    console.log(this.depotService.getActiveStrategy())
     this.stockGroups = this.depotService.getActiveStrategy()["stocks"]
     if(this.stockGroups == -1){
       console.error("Something went wrong with seting the active strategy")
       return
     }
+
     this.stockGroupsKeys = Object.keys(this.stockGroups)
+
+    for (let symbol of this.stockGroupsKeys) {
+        this.restrictions[symbol] = {
+          allowedToBuy: true,
+          allowedToSell: true
+      };
+    }
 
     this.createChartCanvasesIn("stockArea", this.stockGroupsKeys)
     for(let symbol of this.stockGroupsKeys){
@@ -62,6 +72,14 @@ export class TabComponent implements OnInit {
       this.updateChartData()
       this.updateValueLine()
     })
+
+    // this.restrictions.subscribe((data) => {
+    //   this.depotService.sendUpdatedRestrictions(this.restrictions)
+    // })
+  }
+
+  sendUpdatedRestrictions(){
+    this.depotService.sendUpdatedRestrictions(this.restrictions)
   }
 
   getSymbols(){
