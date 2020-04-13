@@ -42,6 +42,7 @@ class Portfolio{
   }
 
   setStockGroup(sgObj){ this.stockGroup = sgObj }
+
   getPortfolioName(){ return this.name }
   getStockroup(){ return this.stockGroup }
   getMoneyLeft(){return this.balanceLeft}
@@ -207,6 +208,7 @@ class Portfolio{
   }
 
   async askToBuyStock(symbolToBuy){
+    console.log("askToBuyStock " + symbolToBuy);
     let _this = this
     let buyAPIsettings = {
       url: 'http://localhost:4001/buy',
@@ -237,8 +239,13 @@ class Portfolio{
       let pendingTrades = []
       // Ask for an offer on all positive stocks
       for (let symbolToBuy of buyList){
-        let moneyToSpend = this.getMoneyLeft()
-        pendingTrades.push(this.askToBuyStock(symbolToBuy))
+        // Check if I am alowed to buy this stock
+        // If so, then add to shopping cart
+        if (this.stockGroup[symbolToBuy.symbol].allowedToBuy){
+          pendingTrades.push(this.askToBuyStock(symbolToBuy))
+        }else{
+          console.log("STOP " + symbolToBuy.symbol);
+        }
       }
       for(let pendingTrade of pendingTrades){
         await pendingTrade

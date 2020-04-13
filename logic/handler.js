@@ -36,6 +36,19 @@ module.exports = class Handler {
     })
   }
 
+  manageRestrictions(restrictions){
+    console.log(restrictions);
+    for (let strategy of Object.keys(this.strategiePortfolios)) {
+      for (var symbol of Object.keys(restrictions)) {
+        this.strategiePortfolios[strategy].stockGroup[symbol].allowedToBuy = restrictions[symbol].allowedToBuy
+        this.strategiePortfolios[strategy].stockGroup[symbol].allowedToSell = restrictions[symbol].allowedToSell
+        if(!(restrictions[symbol].allowedToBuy)){
+          console.log("STOP ON " + symbol);
+        }
+      }
+    }
+  }
+
   compilePlotData(){
     let res = {}
     for(let portfolioName of Object.keys(this.strategiePortfolios)){

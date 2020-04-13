@@ -22,8 +22,13 @@ module.exports = function(app, Handler) {
   app.route('/api/newday')
     .get(function(req, res){
       Handler._newDay().then(_status => res.json({status:_status}))
-
     })
+
+  app.route('/api/restrictions')
+  .post(function(req, res){
+    Handler.manageRestrictions(req.body)
+    res.json({status:"OK"})
+  })
 
   app.route('/api/plotdata')
     .get(function(req, res){
