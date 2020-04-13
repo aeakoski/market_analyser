@@ -27,7 +27,7 @@ module.exports = function(app, Handler) {
 
   app.route('/api/plotdata')
     .get(function(req, res){
-      let o = Handler.getPlotData()
+      let o = Handler.compilePlotData()
       //console.log(JSON.stringify(o, null, 2))
       res.json(o)
     })

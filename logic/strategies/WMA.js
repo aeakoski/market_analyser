@@ -29,7 +29,7 @@ module.exports = class WMA extends Strategy{
     for (let i = 0; i < this.daysToOfferInView; i++) {
       let avgList = []
       for (let d of aa.slice(i, i + n)){
-        avgList.push(parseFloat(stockData[d]["4. close"]))
+        avgList.push(parseFloat(stockData[d]["close"]))
       }
       // resList.push({date: aa[i], value:this.arrAvgWheight(avgList), derivedFrom: avgList})
 

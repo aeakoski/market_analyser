@@ -75,7 +75,7 @@ class Portfolio{
   calculateTodaysTotalPortfolioValue(q){
     let _stocksValue = 0
     for(let symbol of this.getSymbolsIOwn()){
-        _stocksValue = _stocksValue + (q[symbol]['4. close'])*this.stockGroup[symbol].stocks.length
+        _stocksValue = _stocksValue + (q[symbol]['close'])*this.stockGroup[symbol].stocks.length
     }
     this.totalValueOverTime[q.date] = {
       stocksValue: _stocksValue,

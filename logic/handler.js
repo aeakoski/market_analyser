@@ -36,7 +36,7 @@ module.exports = class Handler {
     })
   }
 
-  getPlotData(){
+  compilePlotData(){
     let res = {}
     for(let portfolioName of Object.keys(this.strategiePortfolios)){
         res[portfolioName] = {}

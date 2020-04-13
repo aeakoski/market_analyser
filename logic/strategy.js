@@ -17,7 +17,7 @@ module.exports = class Strategy extends Portfolio{
       if (counter > this.daysToOfferInView) { break }
       res.push({
         date: date,
-        value: this.getStockData(symbol)[date]["4. close"]
+        value: this.getStockData(symbol)[date]["close"]
       })
       counter++
     }

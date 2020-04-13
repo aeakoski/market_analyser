@@ -3,7 +3,7 @@ var moment = require('moment')
 const request = require('request');
 
 var dayCounter = 1
-var yesterday = moment('2008-03-01')
+var yesterday = moment('2016-03-01')
 
 exports.pushTodaysQoutes = function(q){
   request({
@@ -75,7 +75,7 @@ exports.sell = async function(sellList){
       if (prices[stock.symbol] === undefined) {
         returnsList.push(stock)
       } else {
-        returnPrice = returnPrice + parseFloat(prices[stock.symbol]["4. close"])*0.99
+        returnPrice = returnPrice + parseFloat(prices[stock.symbol]["close"])*0.99
       }
     }
   })
@@ -94,14 +94,14 @@ exports.buy = async function(buyList){
       return {results: offerList}
     }
     //console.log(prices);
-    console.log("Price at: " + prices[buyList.symbol]['4. close']);
+    console.log("Price at: " + prices[buyList.symbol]['close']);
     let NUMBER_OF_STOCKS_TO_OFFER = 3
     for (let i = 0; i < NUMBER_OF_STOCKS_TO_OFFER; i++) {
       // Buy a stock
       let stockObj = {}
       stockObj.symbol = buyList.symbol
       // Get price
-      stockObj.price = parseFloat(prices[buyList.symbol]["4. close"]) * 1.01
+      stockObj.price = parseFloat(prices[buyList.symbol]["close"]) * 1.01
       // Get buydate
       stockObj.buyDate = yesterday.format("YYYY-MM-DD")
       // Get get ID
