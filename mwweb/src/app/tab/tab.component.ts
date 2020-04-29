@@ -48,9 +48,10 @@ export class TabComponent implements OnInit {
 
     this.stockGroupsKeys = Object.keys(this.stockGroups)
 
+    // Todo: Read this from server
     for (let symbol of this.stockGroupsKeys) {
         this.restrictions[symbol] = {
-          allowedToBuy: true,
+          allowedToBuy: false,
           allowedToSell: true
       };
     }
@@ -78,7 +79,10 @@ export class TabComponent implements OnInit {
     // })
   }
 
-  sendUpdatedRestrictions(){
+  sendUpdatedRestrictions(symbol, checked){
+    console.log("Entered sendUpdatedRestrictions")
+    console.log(symbol, checked)
+    console.log(this.restrictions)
     this.depotService.sendUpdatedRestrictions(this.restrictions)
   }
 

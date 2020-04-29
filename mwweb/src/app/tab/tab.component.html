@@ -33,9 +33,9 @@
     </div>
     <div class="right col">
       <h2>Options</h2>
-      <ng-container (click)="sendUpdatedRestrictions()">
+      <ng-container>
         <ng-container *ngFor="let symbol of stockGroupsKeys">
-          <mat-checkbox [(ngModel)]="restrictions[symbol].allowedToBuy">{{symbol}}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="restrictions[symbol].allowedToBuy" (change)="sendUpdatedRestrictions()">{{symbol}}</mat-checkbox>
         </ng-container>
       </ng-container>
 
