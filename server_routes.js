@@ -25,6 +25,12 @@ module.exports = function(app, Handler) {
     })
 
   app.route('/api/restrictions')
+  .get(function(req, res){
+    res.json({
+      status:"OK",
+      restrictions: Handler.getRestrictions()
+    })
+  })
   .post(function(req, res){
     Handler.manageRestrictions(req.body)
     res.json({status:"OK"})

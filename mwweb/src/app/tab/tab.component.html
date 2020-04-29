@@ -4,7 +4,6 @@
       <h1>{{depotService.getActiveStrategyName()}}</h1>
     </div>
     <div class="stocks-overview">
-
       <ul>
         <ng-container *ngFor="let symbol of getSymbols()">
           <ng-container *ngIf="symbol.nr_owned">
@@ -35,7 +34,7 @@
       <h2>Options</h2>
       <ng-container>
         <ng-container *ngFor="let symbol of stockGroupsKeys">
-          <mat-checkbox [(ngModel)]="restrictions[symbol].allowedToBuy" (change)="sendUpdatedRestrictions()">{{symbol}}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="restrictions[depotService.getActiveStrategyName()][symbol].allowedToBuy" (change)="sendUpdatedRestrictions()">{{symbol}}</mat-checkbox>
         </ng-container>
       </ng-container>
 

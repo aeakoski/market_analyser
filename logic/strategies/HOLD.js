@@ -5,8 +5,8 @@ const StockGroup = require('../stock_group');
 const Strategy = require("../strategy.js")
 
 module.exports = class HOLD extends Strategy{
-  constructor(name, handler){
-    super(name, handler)
+  constructor(name, handler, creationDate){
+    super(name, handler, creationDate)
     this.shortTerm = 2
     this.longTerm = 1
   }

@@ -12,6 +12,7 @@ export class DepotService {
   status: boolean; // Do we have data or not
   newDayData : Subject<any> = new Subject<any>();
   newStrategyChoice : Subject<any> = new Subject<any>();
+  restrictions : Subject<any> = new Subject<any>();
 
 
   constructor(private http: HttpClient) {
@@ -19,11 +20,12 @@ export class DepotService {
     this._getStrategies()
     .subscribe({
       next: result => {
+        console.log(result)
         this.strategies_object = result;
         this.status = true;
       },
       error: err => console.error(err),
-      complete: () => console.log('Observer got a complete notification'),
+      complete: () => {},
     });
   }
 
@@ -51,12 +53,21 @@ export class DepotService {
   }
 
   sendUpdatedRestrictions(newRestrictions){
-    console.log("jAO!");
     this.http.post("http://localhost:4000/api/restrictions", newRestrictions)
       .subscribe({
         next: result => {},
         error: err => console.error(err),
-        complete: () => console.log('Observer got a complete notification'),
+        complete: () => {},
+      });
+  }
+  getRestrictions(){
+    this.http.get("http://localhost:4000/api/restrictions")
+      .subscribe({
+        next: result => {
+          this.restrictions.next(result.restrictions)
+        },
+        error: err => console.error(err),
+        complete: () => {},
       });
   }
 
@@ -68,15 +79,15 @@ export class DepotService {
       next: res => {},
       error: err => console.error(err),
       complete: () => {
-        console.log('Observer got a complete notification')
         this._getStrategies().subscribe({
           next: result => {
+            console.log(result)
             this.strategies_object = result;
             this.status = true;
             this.newDayData.next(this.strategies_object);
           },
           error: err => console.error(err),
-          complete: () => console.log('Observer got a complete notification'),
+          complete: () => {},
         });
       }
     });

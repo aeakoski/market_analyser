@@ -48,12 +48,20 @@ export class TabComponent implements OnInit {
 
     this.stockGroupsKeys = Object.keys(this.stockGroups)
 
+    this.depotService.getRestrictions()
+    this.depotService.restrictions.subscribe((r)=>{
+      this.restrictions = r
+    })
     // Todo: Read this from server
-    for (let symbol of this.stockGroupsKeys) {
-        this.restrictions[symbol] = {
-          allowedToBuy: false,
-          allowedToSell: true
-      };
+
+    for (let strategy of this.depotService.getStrategiesNames()) {
+      this.restrictions[strategy] = {}
+      for (let symbol of this.stockGroupsKeys) {
+          this.restrictions[strategy][symbol] = {
+            allowedToBuy: false,
+            allowedToSell: true
+        };
+      }
     }
 
     this.createChartCanvasesIn("stockArea", this.stockGroupsKeys)
@@ -74,15 +82,13 @@ export class TabComponent implements OnInit {
       this.updateValueLine()
     })
 
-    // this.restrictions.subscribe((data) => {
-    //   this.depotService.sendUpdatedRestrictions(this.restrictions)
-    // })
+    this.depotService.restrictions.subscribe((restrictions) => {
+      this.restrictions = restrictions
+    })
+
   }
 
   sendUpdatedRestrictions(symbol, checked){
-    console.log("Entered sendUpdatedRestrictions")
-    console.log(symbol, checked)
-    console.log(this.restrictions)
     this.depotService.sendUpdatedRestrictions(this.restrictions)
   }
 

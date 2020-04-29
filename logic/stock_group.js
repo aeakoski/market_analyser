@@ -11,7 +11,7 @@ module.exports = {
     this._200AVG = []
     this.qoutes_400 = -1
     this.latestPrice = 0
-    this.allowedToBuy = true
+    this.allowedToBuy = false
     this.allowedToSell = true
 
     this.getSymbol = function(){ return this.symbol }

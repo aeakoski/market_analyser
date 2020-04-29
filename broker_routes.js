@@ -23,6 +23,14 @@ module.exports = function(app) {
       BC.incrementDate()
     })
 
+  app.route('/date')
+    .get(function(req, res){
+      res.json({
+        status:"OK",
+        date: BC.date()
+      })
+    })
+
   app.route('/sell')
     .post(function(req, res){
       BC.sell(req.body).then(function(data){

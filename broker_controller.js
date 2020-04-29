@@ -17,6 +17,10 @@ exports.pushTodaysQoutes = function(q){
 
 }
 
+exports.date = function(){
+  return yesterday.format("YYYY-MM-DD")
+}
+
 exports.getBacklog = function(symbol, backlog){
   return new Promise(function(resolve, reject){
     resObj = {}

@@ -9,10 +9,18 @@ const HOLD = require('./strategies/HOLD')
 module.exports = class Handler {
   constructor(){
     this.strategiePortfolios = {}
-    this.strategiePortfolios["SMA"] = new SMA("SMA", this, 10, 50)
-    this.strategiePortfolios["WMA"] = new WMA("WMA", this, 10, 50)
-    this.strategiePortfolios["EMA"] = new EMA("EMA", this, 10, 50)
-    this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this)
+    request({
+      url: 'http://localhost:4001/date',
+      method: "GET"
+    }, (err, res, q) => {
+      q = JSON.parse(q)
+      this.strategiePortfolios["SMA"] = new SMA("SMA", this, 10, 50, q["date"])
+      this.strategiePortfolios["WMA"] = new WMA("WMA", this, 10, 50, q["date"])
+      this.strategiePortfolios["EMA"] = new EMA("EMA", this, 10, 50, q["date"])
+      this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this, q["date"])
+    })
+
+
   }
 
   status(){
@@ -38,15 +46,30 @@ module.exports = class Handler {
 
   manageRestrictions(restrictions){
     console.log(restrictions);
-    for (let strategy of Object.keys(this.strategiePortfolios)) {
-      for (var symbol of Object.keys(restrictions)) {
-        this.strategiePortfolios[strategy].stockGroup[symbol].allowedToBuy = restrictions[symbol].allowedToBuy
-        this.strategiePortfolios[strategy].stockGroup[symbol].allowedToSell = restrictions[symbol].allowedToSell
-        if(!(restrictions[symbol].allowedToBuy)){
+    for (let strategy of Object.keys(restrictions)) {
+      console.log(strategy);
+      for (var symbol of Object.keys(restrictions[strategy])) {
+        this.strategiePortfolios[strategy].stockGroup[symbol].allowedToBuy = restrictions[strategy][symbol].allowedToBuy
+        this.strategiePortfolios[strategy].stockGroup[symbol].allowedToSell = restrictions[strategy][symbol].allowedToSell
+        if(!(restrictions[strategy][symbol].allowedToBuy)){
           console.log("STOP ON " + symbol);
         }
       }
     }
+  }
+
+  getRestrictions(){
+    let res = {};
+    for (let strategy of Object.keys(this.strategiePortfolios)) {
+      res[strategy] = {}
+      for (var symbol of this.strategiePortfolios[strategy].getSymbols()) {
+        res[strategy][symbol] = {
+          allowedToBuy: this.strategiePortfolios[strategy].stockGroup[symbol].allowedToBuy,
+          allowedToSell: this.strategiePortfolios[strategy].stockGroup[symbol].allowedToSell
+        }
+      }
+    }
+    return res
   }
 
   compilePlotData(){

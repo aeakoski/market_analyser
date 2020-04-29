@@ -2,8 +2,8 @@ const Portfolio = require("./portfolio.js")
 
 
 module.exports = class Strategy extends Portfolio{
-  constructor(name, handler){
-    super(name, handler)
+  constructor(name, handler, creationDate){
+    super(name, handler, creationDate)
     this.daysToOfferInView = 200
   }
 

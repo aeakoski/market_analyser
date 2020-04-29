@@ -5,14 +5,17 @@ const Stock = require('./stock');
 const StockGroup = require('./stock_group');
 
 class Portfolio{
-  constructor(name, handler){
+  constructor(name, handler, creationDate){
     this.name = name
     this.Handler = handler
     //this.dateValue = [] // [{date:xxxx-xx-xx, value:xxx.xx}, {{date:xxxx-xx-xx, value:xxx.xx}}...]
     this.portfolioValueOverTime = []
     this.totalValueOverTime = {}
     this.risk = 0.3
+    this.creationDate = creationDate
     // this.stockGroup
+
+
 
     var _this = this
     let p = new Promise(
@@ -35,6 +38,13 @@ class Portfolio{
           }
           _this.setStockGroup(res)
           _this.populateStockData()
+
+          _this.totalValueOverTime[_this.creationDate] = {
+            stocksValue: 0,
+            totalValue: _this.balanceLeft,
+            date: _this.creationDate
+          }
+
           resolve(true)
         })
       }
@@ -98,7 +108,7 @@ class Portfolio{
     for(let symbol of diff){
       _stocksValue = _stocksValue + (this.stockGroup[symbol].latestPrice)*this.stockGroup[symbol].stocks.length
     }
-
+    console.log("Here!");
     this.totalValueOverTime[q.date] = {
       stocksValue: _stocksValue,
       totalValue: _stocksValue + this.balanceLeft,
@@ -243,8 +253,6 @@ class Portfolio{
         // If so, then add to shopping cart
         if (this.stockGroup[symbolToBuy.symbol].allowedToBuy){
           pendingTrades.push(this.askToBuyStock(symbolToBuy))
-        }else{
-          console.log("STOP " + symbolToBuy.symbol);
         }
       }
       for(let pendingTrade of pendingTrades){
