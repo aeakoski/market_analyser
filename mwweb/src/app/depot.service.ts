@@ -63,8 +63,10 @@ export class DepotService {
   getRestrictions(){
     this.http.get("http://localhost:4000/api/restrictions")
       .subscribe({
-        next: result => {
-          this.restrictions.next(result.restrictions)
+        next: (result) => {
+          console.log("getRestrictions()")
+          console.log(result)
+          this.restrictions.next(result["restrictions"])
         },
         error: err => console.error(err),
         complete: () => {},
