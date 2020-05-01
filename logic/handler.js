@@ -14,9 +14,9 @@ module.exports = class Handler {
       method: "GET"
     }, (err, res, q) => {
       q = JSON.parse(q)
-      this.strategiePortfolios["SMA"] = new SMA("SMA", this, 10, 50, q["date"])
-      this.strategiePortfolios["WMA"] = new WMA("WMA", this, 10, 50, q["date"])
-      this.strategiePortfolios["EMA"] = new EMA("EMA", this, 10, 50, q["date"])
+      this.strategiePortfolios["SMA"] = new SMA("SMA", this, 10, 100, q["date"])
+      this.strategiePortfolios["WMA"] = new WMA("WMA", this, 10, 100, q["date"])
+      this.strategiePortfolios["EMA"] = new EMA("EMA", this, 10, 100, q["date"])
       this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this, q["date"])
     })
 
@@ -87,7 +87,7 @@ module.exports = class Handler {
           }
         }
         // Insert portfolio values here
-        res[portfolioName]["values"] = this.strategiePortfolios[portfolioName].getPortfolioValues()
+        res[portfolioName]["values"] = this.strategiePortfolios[portfolioName].getTotalValueOverTime()
     }
     return res
   }

@@ -1,12 +1,6 @@
 'use strict';
 module.exports = function(app, Handler) {
 
-  app.route('/api/debug')
-    .get(function(req, res){
-      Handler.debug()
-      res.send("OK")
-    })
-
   app.route('/api/status')
     .get(function(req, res){
       Handler.status()

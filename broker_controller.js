@@ -28,8 +28,8 @@ exports.getBacklog = function(symbol, backlog){
     let dateToFetch = moment(yesterday)
     dateToFetch.subtract(1, "days")
     let foundDates = 0
-    if (fs.readdirSync('./data').includes(symbol)) {
-      all_qoutes = JSON.parse(fs.readFileSync("./data/" + symbol, options={encoding:"utf-8"}))
+    if (fs.readdirSync('./data/stocks/').includes(symbol)) {
+      all_qoutes = JSON.parse(fs.readFileSync("./data/stocks/" + symbol, options={encoding:"utf-8"}))
       if(symbol == "V"){
         console.log(all_qoutes);
       }
@@ -135,8 +135,8 @@ exports.getTodaysQoutes = function(symbols, backlog){
       todaysQoutes = {}
       // TODO Server craches if CANNOT GET
       for (let symbol of symbols) {
-        if (fs.readdirSync('./data').includes(symbol)) {
-          all_qoutes = JSON.parse(fs.readFileSync("./data/" + symbol, options={encoding:"utf-8"}))
+        if (fs.readdirSync('./data/stocks/').includes(symbol)) {
+          all_qoutes = JSON.parse(fs.readFileSync("./data/stocks/" + symbol, options={encoding:"utf-8"}))
           if(all_qoutes[yesterday.format("YYYY-MM-DD")] === undefined){ continue }
           todaysQoutes[symbol] = all_qoutes[yesterday.format("YYYY-MM-DD")]
         } else {
