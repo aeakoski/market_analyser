@@ -7,12 +7,11 @@ const Strategy = require("../strategy.js")
 module.exports = class HOLD extends Strategy{
   constructor(name, handler, creationDate){
     super(name, handler, creationDate)
-    this.shortTerm = 2
-    this.longTerm = 1
   }
 
-  calculateAverage(symbol, n){
-    return [{value:n}]
+  isABuy(symbol, options){
+      return {isABuy:true, strength:1, symbol:symbol}
   }
+
 
 }

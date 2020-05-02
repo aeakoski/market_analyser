@@ -76,16 +76,17 @@ module.exports = class Handler {
     let res = {}
     for(let portfolioName of Object.keys(this.strategiePortfolios)){
         res[portfolioName] = {}
-        res[portfolioName]["stocks"] = {}
-        res[portfolioName]["values"] = {}
-        for (let symbol of this.strategiePortfolios[portfolioName].getSymbols()){
-          res[portfolioName]["stocks"][symbol] = {
-            regular:this.strategiePortfolios[portfolioName].getStockDataToPlot(symbol),
-            _50:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 10),
-            _200:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 50),
-            nr_owned:this.strategiePortfolios[portfolioName].getNumberOfStock(symbol)
-          }
-        }
+        //res[portfolioName]["stocks"] = {}
+        res[portfolioName]["stocks"] = this.strategiePortfolios[portfolioName].getStockDataToPlot()
+        //res[portfolioName]["values"] = {}
+        // for (let symbol of this.strategiePortfolios[portfolioName].getSymbols()){
+        //   res[portfolioName]["stocks"][symbol] = {
+        //     regular:this.strategiePortfolios[portfolioName].getStockDataToPlot(symbol),
+        //     _50:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 10),
+        //     _200:this.strategiePortfolios[portfolioName].calculateAverage(symbol, 50),
+        //     nr_owned:this.strategiePortfolios[portfolioName].getNumberOfStock(symbol)
+        //   }
+        // }
         // Insert portfolio values here
         res[portfolioName]["values"] = this.strategiePortfolios[portfolioName].getTotalValueOverTime()
     }

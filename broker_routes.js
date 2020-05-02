@@ -53,7 +53,6 @@ module.exports = function(app) {
   app.route('/backlog')
     .get(function(req, res){
       // Send querry and fetch data
-      console.log("Sending backlog request");
       BC.getBacklog(req.query.symbol, req.query.days).then(function(data, err){
         res.json(data)
       })

@@ -13,6 +13,7 @@ class Portfolio{
     this.totalValueOverTime = {}
     this.risk = 0.3
     this.creationDate = creationDate
+    this.historicalQoutesToFetch = 100
     // this.stockGroup
     // this.balanceLeft
     // this.symbols_wishlist
@@ -21,7 +22,7 @@ class Portfolio{
     let p = new Promise(
       function (resolve, reject) {
         console.log();
-        fs.readFile(__dirname + '/saved/MA_50_200.portf', {encoding: 'utf-8'}, function (err, data) {
+        fs.readFile(__dirname + '/saved/FX1.portf', {encoding: 'utf-8'}, function (err, data) {
           if (err) {
             console.log(err)
             reject("Ohno")
@@ -156,7 +157,7 @@ class Portfolio{
         // Check for an earlier qoutes. IF not exists, call for one
         if (_this.stockGroup[symbol].qoutes_400 != -1) { continue; }
         console.log("Fetching first time data for: " + symbol);
-        waitinglist.push(_this.getQoute(symbol, 400).then(async function(result, err){
+        waitinglist.push(_this.getQoute(symbol, _this.historicalQoutesToFetch).then(async function(result, err){
           if (err){
             console.log("No connection to broker, start broker.js, then restart this app");
             reject(true)

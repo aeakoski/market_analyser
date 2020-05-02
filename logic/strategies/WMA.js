@@ -12,6 +12,25 @@ module.exports = class WMA extends Strategy{
     this.longTerm = longTerm
   }
 
+  isABuy(symbol, options){
+    let item = { symbol: symbol }
+    let list50 = this.calculateAverage(symbol, options.shortTerm, true)
+    let list200 = this.calculateAverage(symbol, options.longTerm, true)
+
+    let shortTermAverage = list50[list50.length-1].value
+    let longTermAverage = list200[list200.length-1].value
+    let logObj = {
+      shortTermAverage:shortTermAverage,
+      longTermAverage:longTermAverage,
+      symbol:symbol
+    }
+    if (shortTermAverage > longTermAverage) {
+      return {isABuy:true, strength:(shortTermAverage - longTermAverage), symbol:symbol}
+    }else {
+      return {isABuy:false, strength:(longTermAverage - shortTermAverage), symbol:symbol}
+    }
+  }
+
   arrAvgWheight(arr){
     let sum = 0.0
     let wheight = 1
@@ -25,15 +44,15 @@ module.exports = class WMA extends Strategy{
   calculateAverage(symbol, n){
     let resList = []
     let stockData = this.getStockData(symbol)
-    let aa = Object.keys(stockData).sort().reverse()
+    let dates = Object.keys(stockData).sort().reverse()
     for (let i = 0; i < this.daysToOfferInView; i++) {
       let avgList = []
-      for (let d of aa.slice(i, i + n)){
+      for (let d of dates.slice(i, i + n)){
         avgList.push(parseFloat(stockData[d]["close"]))
       }
-      // resList.push({date: aa[i], value:this.arrAvgWheight(avgList), derivedFrom: avgList})
+      if (avgList.length === 0){continue}
 
-      resList.push({date: aa[i], value:moving_averages.wma(avgList, avgList.length)[avgList.length-1], derivedFrom: avgList})
+      resList.push({date: dates[i], value:moving_averages.wma(avgList, avgList.length)[avgList.length-1], derivedFrom: avgList})
     }
     resList.reverse()
     return resList

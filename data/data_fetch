@@ -1,0 +1,6 @@
+curl "https://poloniex.com/public?\
+&command=returnChartData\
+&currencyPair=USDT_BTC\
+&start=1583152450\
+&end=1588333264\
+&period=900"

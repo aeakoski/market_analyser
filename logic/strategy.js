@@ -7,7 +7,24 @@ module.exports = class Strategy extends Portfolio{
     this.daysToOfferInView = 200
   }
 
-  getStockDataToPlot(symbol){
+  getStockDataToPlot(){
+    let d = {}
+    for (let symbol of this.getSymbols()){
+      d[symbol] = {}
+      d[symbol].regular = this.getRegularStockDataToPlot(symbol)
+      d[symbol].nr_owned = this.getNumberOfStock(symbol)
+
+      if (this.shortTerm != undefined) {
+        d[symbol]._50 = this.calculateAverage(symbol, this.shortTerm)
+      }
+      if (this.longTerm != undefined) {
+        d[symbol]._200 = this.calculateAverage(symbol, this.longTerm)
+      }
+    }
+    return d
+  }
+
+  getRegularStockDataToPlot(symbol){
     let res = []
     let dateList = Object.keys(this.getStockData(symbol))
     dateList.sort()
@@ -43,31 +60,33 @@ module.exports = class Strategy extends Portfolio{
     }
 
     for (let symbol of this.getSymbols()) {
-      let item = { symbol: symbol }
-      let list50 = this.calculateAverage(symbol, this.shortTerm, true)
-      let list200 = this.calculateAverage(symbol, this.longTerm, true)
+      let decision = this.isABuy(symbol, {shortTerm: this.shortTerm, longTerm: this.longTerm})
 
-      let shortTermAverage = list50[list50.length-1].value
-      let longTermAverage = list200[list200.length-1].value
-      let logObj = {
-        shortTermAverage:shortTermAverage,
-        longTermAverage:longTermAverage,
-        symbol:symbol
-      }
+      // let item = { symbol: symbol }
+      // let list50 = this.calculateAverage(symbol, this.shortTerm, true)
+      // let list200 = this.calculateAverage(symbol, this.longTerm, true)
+      //
+      // let shortTermAverage = list50[list50.length-1].value
+      // let longTermAverage = list200[list200.length-1].value
+      // let logObj = {
+      //   shortTermAverage:shortTermAverage,
+      //   longTermAverage:longTermAverage,
+      //   symbol:symbol
+      // }
+
       //this.logTrends(logObj) // THIS PRINTS TO SCREEN COMMENT ME OUT
-      if (shortTermAverage > longTermAverage) {
+      //if (shortTermAverage > longTermAverage) {
+      if (decision.isABuy) {
         // Buy
-        item.trendStrength = shortTermAverage - longTermAverage
-        res.buy.push(item)
+        res.buy.push(decision)
       } else {
         // Sell
-        item.trendStrength = longTermAverage - shortTermAverage
-        res.sell.push(item)
+        res.sell.push(decision)
       }
     }
     // Sort res lists after relevance
-    res.buy.sort((a, b) => (a.trendStrength > b.trendStrength) ? 1 : -1)
-    res.sell.sort((a, b) => (a.trendStrength > b.trendStrength) ? 1 : -1)
+    res.buy.sort((a, b) => (a.strength > b.strength) ? 1 : -1)
+    res.sell.sort((a, b) => (a.strength > b.strength) ? 1 : -1)
     return res
   }
 

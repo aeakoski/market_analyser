@@ -12,20 +12,44 @@ module.exports = class EMA extends Strategy{
     this.longTerm = longTerm
   }
 
+  isABuy(symbol, options){
+    let item = { symbol: symbol }
+    let list50 = this.calculateAverage(symbol, options.shortTerm, true)
+    let list200 = this.calculateAverage(symbol, options.longTerm, true)
+
+    let shortTermAverage = list50[list50.length-1].value
+    let longTermAverage = list200[list200.length-1].value
+    let logObj = {
+      shortTermAverage:shortTermAverage,
+      longTermAverage:longTermAverage,
+      symbol:symbol
+    }
+    if (shortTermAverage > longTermAverage) {
+      return {isABuy:true, strength:(shortTermAverage - longTermAverage), symbol:symbol}
+    }else {
+      return {isABuy:false, strength:(longTermAverage - shortTermAverage), symbol:symbol}
+    }
+  }
+
+
   calculateAverage(symbol, n){
+    // n is days to average over
     let resList = []
     let stockData = this.getStockData(symbol)
-    let aa = Object.keys(stockData).sort().reverse()
-    let lastPriceList = -1
+    let dates = Object.keys(stockData).sort().reverse()
     for (let i = 0; i < this.daysToOfferInView; i++) {
       let avgList = []
-      for (let d of aa.slice(i, i + n)){
-        avgList.push(parseFloat(stockData[d]["close"]))
+      for (let date of dates.slice(i, i + n)){
+        avgList.push(parseFloat(stockData[date]["close"]))
       }
-      resList.push({date: aa[i], value:moving_averages.ema(avgList, avgList.length)[avgList.length-1], derivedFrom: avgList})
+      if (avgList.length === 0){continue}
+
+      resList.push({date: dates[i], value:moving_averages.ema(avgList, avgList.length)[avgList.length-1], derivedFrom: avgList})
     }
     resList.reverse()
     return resList
   }
+
+
 
 }

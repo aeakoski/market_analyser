@@ -102,7 +102,7 @@ export class TabComponent implements OnInit {
   }
 
   mini(arr, val){
-    let m = 9999999
+    let m = 9999999999
     for(let i of arr){
       if (parseFloat(val(i)) < m){
         m = parseFloat(val(i))
@@ -134,7 +134,8 @@ export class TabComponent implements OnInit {
 
     // Add X axis --> it is a date format
     var x = d3.scaleTime()
-    .domain(d3.extent(Object.values(values), function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+    //.domain(d3.extent(Object.values(values), function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+    .domain(d3.extent(Object.values(values), function(d:any) { return d3.timeParse("%s")(d.date); }))
     .range([ 0, this.width ]);
     this.svgs["totalValue"].append("g")
     .attr("class", "x axis")
@@ -161,7 +162,8 @@ export class TabComponent implements OnInit {
        .attr("stroke", LINE_SETINGS[0].color)
        .attr("stroke-width", 1.5)
        .attr("d", d3.line()
-         .x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+         //.x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+         .x(function(d:any) { return x(d3.timeParse("%s")(d.date)) })
          .y(function(d:any) { return y(d.totalValue) })
          )
   }
@@ -169,8 +171,9 @@ export class TabComponent implements OnInit {
   initStockLine(symbol){
     let ymin = 99999
     let ymax = 0
+
     for (let _c of LINE_SETINGS){
-       if(!(this.stockGroups[symbol][_c.type].length)){ return }
+       if(this.stockGroups[symbol][_c.type] === undefined){ continue }
        if (this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value}) < ymin) {
          ymin = this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value})//d3.min(result[symbol][_c.type], function(d){return d.value})
        }
@@ -181,11 +184,13 @@ export class TabComponent implements OnInit {
 
     for (let c of LINE_SETINGS){
       // let data = this.stockGroups[symbol][c.type]
+      if(this.stockGroups[symbol][c.type] === undefined){ continue }
       if(!(this.stockGroups[symbol][c.type].length)){ return }
       if (c.type == "regular") {
         // Add X axis --> it is a date format
         var x = d3.scaleTime()
-        .domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+        //.domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+        .domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%s")(d.date); }))
         .range([ 0, this.width ]);
         this.svgs[symbol].append("g")
         .attr("class", "x axis")
@@ -212,7 +217,8 @@ export class TabComponent implements OnInit {
          .attr("stroke", c.color)
          .attr("stroke-width", 1.5)
          .attr("d", d3.line()
-           .x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+           //.x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+           .x(function(d:any) { return x(d3.timeParse("%s")(d.date)) })
            .y(function(d:any) { return y(d.value) })
            )
      }
@@ -256,7 +262,8 @@ export class TabComponent implements OnInit {
     let svg = d3.select("#plot_totalValue".replace(".","-")).transition();
     // Add X axis
     var x = d3.scaleTime()
-    .domain(d3.extent(Object.values(values), function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+    //.domain(d3.extent(Object.values(values), function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+    .domain(d3.extent(Object.values(values), function(d:any) { return d3.timeParse("%s")(d.date); }))
     .range([ 0, this.width ]);
     this.svgs["totalValue"].select(".x.axis")
     .call(d3.axisBottom(x));
@@ -270,7 +277,8 @@ export class TabComponent implements OnInit {
     this.svgs["totalValue"].select("." + "totalValue" + "regular")
     .datum(Object.values(values))
     .attr("d", d3.line()
-    .x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+    //.x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+    .x(function(d:any) { return x(d3.timeParse("%s")(d.date)) })
     .y(function(d:any) { return y(d.totalValue) })
     )
   }
@@ -282,6 +290,7 @@ export class TabComponent implements OnInit {
       let ymin = 99999
       let ymax = 0
       for (let _c of LINE_SETINGS){
+        if(this.stockGroups[symbol][_c.type] === undefined){ continue }
         if (this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value}) < ymin) {
           ymin = this.mini(this.stockGroups[symbol][_c.type], function(d){return d.value})//d3.min(result[symbol][_c.type], function(d){return d.value})
         }
@@ -289,13 +298,15 @@ export class TabComponent implements OnInit {
           ymax = this.maxi(this.stockGroups[symbol][_c.type], function(d) { return +d.value; })//d3.max(result[symbol][_c.type], function(d) { return +d.value; })
         }
       }
-      let svg = d3.select("#plot_" + symbol.replace(".","-")).transition();
+      //let svg = d3.select("#plot_" + symbol.replace(".","-")).transition();
       for (let c of LINE_SETINGS){
+
         // let data = this.stockGroups[symbol][c.type]
         if (c.type == "regular") {
           // Add X axis --> it is a date format
           var x = d3.scaleTime()
-          .domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+          //.domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%Y-%m-%d")(d.date); }))
+          .domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%s")(d.date); }))
           .range([ 0, this.width ]);
           this.svgs[symbol].select(".x.axis")
           .call(d3.axisBottom(x));
@@ -308,13 +319,24 @@ export class TabComponent implements OnInit {
           this.svgs[symbol].select(".y.axis")
           .call(d3.axisLeft(y));
         }
-        // Add the line
-        this.svgs[symbol].select("." + symbol + c.type)
-        .datum(this.stockGroups[symbol][c.type])
-        .attr("d", d3.line()
-        .x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
-        .y(function(d:any) { return y(d.value) })
+        if(this.stockGroups[symbol][c.type] === undefined){
+          // Add the line
+
+          this.svgs[symbol].select("." + symbol + c.type)
+          .datum(this.stockGroups[symbol][c.type])
+          .attr("d", "")
+
+        } else {
+          // Add the line
+          this.svgs[symbol].select("." + symbol + c.type)
+          .datum(this.stockGroups[symbol][c.type])
+          .attr("d", d3.line()
+          //.x(function(d:any) { return x(d3.timeParse("%Y-%m-%d")(d.date)) })
+          .x(function(d:any) { return x(d3.timeParse("%s")(d.date)) })
+          .y(function(d:any) { return y(d.value) })
         )
+
+        }
       }
     }
   }

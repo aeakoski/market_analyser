@@ -3,7 +3,12 @@ var moment = require('moment')
 const request = require('request');
 
 var dayCounter = 1
-var yesterday = moment('2016-03-01')
+//var yesterday = moment('2016-03-01')
+
+// UNIX Timestamp
+//var clock_now = 1588333264 // 2020 04 30
+var clock_now = 1584707650 // 2020 01 30
+var interval = 900 // 15 minutes
 
 exports.pushTodaysQoutes = function(q){
   request({
@@ -14,50 +19,88 @@ exports.pushTodaysQoutes = function(q){
     if (err) { return console.log(err) }
     // Send qoutes and dont expect an answer
   })
-
 }
 
 exports.date = function(){
-  return yesterday.format("YYYY-MM-DD")
+  //return yesterday.format("YYYY-MM-DD")
+  return clock_now
+}
+
+function binarySearchWrapper(arr, i) {
+  let _arr = arr.slice()
+  _arr[0].isFirst = true
+  _arr[arr.length-1].isLast = true
+  return binarySearch(_arr, i)
+}
+
+function binarySearch(arr, i) {
+    var mid = Math.floor(arr.length / 2);
+    //console.log(arr[mid].date, i);
+
+    if (arr[mid].date === i) {
+        //console.log('match', arr[mid].date, i);
+        //console.log("Good hit");
+        return arr[mid];
+    } else if (arr[mid].date < i && arr.length > 1) {
+        //console.log('mid lower', arr[mid].date, i);
+        return binarySearch(arr.splice(mid, Number.MAX_VALUE), i);
+    } else if (arr[mid].date > i && arr.length > 1) {
+
+        //console.log('mid higher', arr[mid].date, i);
+        return binarySearch(arr.splice(0, mid), i);
+    } else {
+      //console.log("Bad hit");
+        //console.log('not here, giving closest to', i);
+        //console.log(arr[mid].date);
+        if ((arr[mid].isFirst) || (arr[mid].isLast)){
+          console.log(i);
+          console.log(arr[mid]);
+          return -1
+        } else {
+          return arr[mid];
+        }
+    }
+
 }
 
 exports.getBacklog = function(symbol, backlog){
+  backlog = parseInt(backlog)
   return new Promise(function(resolve, reject){
     resObj = {}
 
-    let dateToFetch = moment(yesterday)
-    dateToFetch.subtract(1, "days")
-    let foundDates = 0
-    if (fs.readdirSync('./data/stocks/').includes(symbol)) {
-      all_qoutes = JSON.parse(fs.readFileSync("./data/stocks/" + symbol, options={encoding:"utf-8"}))
-      if(symbol == "V"){
-        console.log(all_qoutes);
-      }
-      let dayCounter = 0
-      backlog = parseInt(backlog)
+    // let dateToFetch = moment(yesterday)
+    // dateToFetch.subtract(1, "days")
+    let dateToFetch = clock_now - interval
 
-      while(foundDates < backlog && dayCounter<365 * 10){
-        dateToFetch.subtract(1, 'days')
+    let foundDates = 0
+    if (fs.readdirSync('data/fx/').includes(symbol)) {
+      all_qoutes = JSON.parse(fs.readFileSync("data/fx/" + symbol, options={encoding:"utf-8"}))
+      all_qoutes.sort((a, b)=>{(a.date > b.date)?1:-1})
+      let dayCounter = 0
+      while(foundDates < backlog && dayCounter < 200){
+        dateToFetch = dateToFetch - interval
         dayCounter++
-        if(all_qoutes[dateToFetch.format("YYYY-MM-DD")] == undefined){
-          continue
+
+        //resObj[dateToFetch] = all_qoutes[dateToFetch]
+        let searchResult = binarySearchWrapper(all_qoutes, dateToFetch)
+        if(searchResult !== -1){
+          resObj[dateToFetch] = searchResult
         }
-        foundDates++
-        resObj[dateToFetch.format("YYYY-MM-DD")] = all_qoutes[dateToFetch.format("YYYY-MM-DD")]
-        // if(foundDates == backlog){ break }
-        now = dateToFetch
+
+        foundDates = Object.keys(resObj).length
+
       }
 
       if (foundDates != backlog) {
-        console.log(symbol + " stoped fetching at " + dateToFetch.format("YYYY-MM-DD") + ", total " + dayCounter + " days. Got " + foundDates + " days");
+        console.log(symbol + " stoped fetching at " + dateToFetch + ", total " + dayCounter + " days. Got " + foundDates + " days");
         // console.log();
         // throw "You requested fo fetch more qoutes than exist " + foundDates + " " + backlog
       }
       resolve(resObj)
 
     } else {
-      reject("Need to implement API call for " + symbol)
-      console.log("Need to implement API call for " + symbol);
+      reject("Could not find in cashed files " + symbol)
+      console.log("Could not find in cashed files " + symbol);
     }
   })
 }
@@ -87,7 +130,6 @@ exports.sell = async function(sellList){
   return { ackumulatedPrice: returnPrice, returns:returnsList }
 }
 
-
 exports.buy = async function(buyList){
   let offerList = []
   console.log("Client wants to buy " + buyList.symbol);
@@ -107,7 +149,8 @@ exports.buy = async function(buyList){
       // Get price
       stockObj.price = parseFloat(prices[buyList.symbol]["close"]) * 1.01
       // Get buydate
-      stockObj.buyDate = yesterday.format("YYYY-MM-DD")
+      //stockObj.buyDate = yesterday.format("YYYY-MM-DD")
+      stockObj.buyDate = clock_now
       // Get get ID
       stockObj.id = Math.floor(Math.random() * 1000000000000000)
 
@@ -123,29 +166,38 @@ exports.buy = async function(buyList){
 }
 
 exports.incrementDate = function(){
-  yesterday.add(1, "days")
+  clock_now = clock_now + interval
+  //yesterday.add(1, "days")
 }
 
-
-exports.getTodaysQoutes = function(symbols, backlog){
+exports.getTodaysQoutes = function(symbols){
   //console.log("Fetching qoutes for: " + yesterday.format("YYYY-MM-DD"));
   return new Promise(function(resolve, reject){
-    var requestDate = yesterday.format("YYYY-MM-DD")
-    if( symbols != undefined ){
-      todaysQoutes = {}
-      // TODO Server craches if CANNOT GET
-      for (let symbol of symbols) {
-        if (fs.readdirSync('./data/stocks/').includes(symbol)) {
-          all_qoutes = JSON.parse(fs.readFileSync("./data/stocks/" + symbol, options={encoding:"utf-8"}))
-          if(all_qoutes[yesterday.format("YYYY-MM-DD")] === undefined){ continue }
-          todaysQoutes[symbol] = all_qoutes[yesterday.format("YYYY-MM-DD")]
-        } else {
-          console.log("Need to implement API call for " + symbol);
+    //var requestDate = yesterday.format("YYYY-MM-DD")
+    if( symbols === undefined ){return}
+    var requestDate = clock_now
+
+    todaysQoutes = {}
+    // TODO Server craches if CANNOT GET
+    for (let symbol of symbols) {
+      if (fs.readdirSync('data/fx/').includes(symbol)) {
+        all_qoutes = JSON.parse(fs.readFileSync("data/fx/" + symbol, options={encoding:"utf-8"}))
+
+        //todaysQoutes[symbol] = all_qoutes[yesterday.format("YYYY-MM-DD")]
+        let searchResult = binarySearchWrapper(all_qoutes, clock_now)
+        if(searchResult !== -1){
+          todaysQoutes[symbol] = searchResult
         }
+
+        // todaysQoutes[symbol] = binarySearchWrapper(all_qoutes, clock_now)
+
+      } else {
+        console.log("Not cashed s file " + symbol);
       }
-      todaysQoutes.date = requestDate
-      resolve(todaysQoutes)
-      //return
     }
+    todaysQoutes.date = requestDate
+    resolve(todaysQoutes)
+    //return
+
   })
 }

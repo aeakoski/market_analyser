@@ -1,0 +1,11 @@
+{
+  "name": "FX1",
+  "balanceLeft": 100000,
+  "risk": 1.0,
+  "symbols_wishlist": [
+  "USDT_BTC"
+  ],
+  "owns": [
+
+  ]
+}
