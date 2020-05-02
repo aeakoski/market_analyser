@@ -241,7 +241,7 @@ export class TabComponent implements OnInit {
         this.svgs[symbol] = d3.select("#plot_" + symbol.replace(".","-"))//element)
         .append('svg')
         .attr('width', this.width + this.margin.left + this.margin.right)//element.offsetWidth)
-        .attr('height', this.height + this.margin.top + this.margin.bottom)//element.offsetHeight)
+        .attr('height', this.height + this.margin.top + this.margin.bottom+50)//element.offsetHeight)
         .append("g")
         .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
       }
@@ -309,7 +309,13 @@ export class TabComponent implements OnInit {
           .domain(d3.extent(this.stockGroups[symbol][c.type], function(d:any) { return d3.timeParse("%s")(d.date); }))
           .range([ 0, this.width ]);
           this.svgs[symbol].select(".x.axis")
-          .call(d3.axisBottom(x));
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+          .attr("y", 0)
+          .attr("x", 9)
+          .attr("transform", "rotate(90)")
+          .style("text-anchor", "start")
+
 
           // Add Y axis
           var y = d3.scaleLinear()
