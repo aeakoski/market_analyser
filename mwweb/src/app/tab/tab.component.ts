@@ -23,8 +23,8 @@ const LINE_SETINGS =  [{
 export class TabComponent implements OnInit {
   @ViewChild('chart', {static: false}) private chartContainer: ElementRef;
   margin: any = {top: 0, right: 0, bottom: 30, left: 45}
-  width: any = 250 - this.margin.left - this.margin.right
-  height: any = 200 - this.margin.top - this.margin.bottom;
+  width: any = 1500 - this.margin.left - this.margin.right
+  height: any = 800 - this.margin.top - this.margin.bottom;
   title: string;
   stockGroupsKeys: any;
   stockGroups: any;
