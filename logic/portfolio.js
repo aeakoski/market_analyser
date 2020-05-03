@@ -21,7 +21,6 @@ class Portfolio{
     var _this = this
     let p = new Promise(
       function (resolve, reject) {
-        console.log();
         fs.readFile(__dirname + '/saved/FX1.portf', {encoding: 'utf-8'}, function (err, data) {
           if (err) {
             console.log(err)
@@ -90,6 +89,10 @@ class Portfolio{
     })
     }
 
+  getLatestPrice(symbol){
+    return this.stockGroup[symbol].latestPrice
+  }
+
   getAndRemoveStocks(symbol){
     let ret = this.stockGroup[symbol].stocks
     this.stockGroup[symbol].stocks = []
@@ -133,7 +136,6 @@ class Portfolio{
     for(let symbol of diff){
       _stocksValue = _stocksValue + (this.stockGroup[symbol].latestPrice)*this.stockGroup[symbol].stocks.length
     }
-    console.log("Here!");
     this.totalValueOverTime[q.date] = {
       stocksValue: _stocksValue,
       totalValue: _stocksValue + this.balanceLeft,
@@ -145,6 +147,8 @@ class Portfolio{
     for(let symbol of Object.keys(q)){
       if(symbol === "date"){continue}
       this.stockGroup[symbol].qoutes_400[q.date] = q[symbol]
+      this.stockGroup[symbol].latestPrice_2 = this.stockGroup[symbol].latestPrice_1
+      this.stockGroup[symbol].latestPrice_1 = this.stockGroup[symbol].latestPrice
       this.stockGroup[symbol].latestPrice = q[symbol]["close"]
     }
   }
@@ -223,7 +227,6 @@ class Portfolio{
   }
 
   async askToBuyStock(symbolToBuy){
-    console.log("askToBuyStock " + symbolToBuy);
     let _this = this
     let buyAPIsettings = {
       url: 'http://localhost:4001/buy',

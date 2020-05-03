@@ -5,6 +5,7 @@ const SMA = require('./strategies/SMA')
 const WMA = require('./strategies/WMA')
 const EMA = require('./strategies/EMA')
 const HOLD = require('./strategies/HOLD')
+const LIMITS = require('./strategies/LIMITS')
 
 module.exports = class Handler {
   constructor(){
@@ -14,14 +15,16 @@ module.exports = class Handler {
       method: "GET"
     }, (err, res, q) => {
       q = JSON.parse(q)
-      this.strategiePortfolios["SMA_3-5"] = new SMA("SMA_3-5", this, 3, 5, q["date"])
-      this.strategiePortfolios["SMA_5-8"] = new SMA("SMA_5-8", this, 5, 8, q["date"])
-      this.strategiePortfolios["SMA_8-13"] = new SMA("SMA_8-13", this, 8, 13, q["date"])
+      // this.strategiePortfolios["SMA_3-5"] = new SMA("SMA_3-5", this, 3, 5, q["date"])
+      // this.strategiePortfolios["SMA_5-8"] = new SMA("SMA_5-8", this, 5, 8, q["date"])
+      // this.strategiePortfolios["SMA_8-13"] = new SMA("SMA_8-13", this, 8, 13, q["date"])
       this.strategiePortfolios["SMA_5-13"] = new SMA("SMA_5-13", this, 5, 13, q["date"])
-
-      this.strategiePortfolios["WMA"] = new WMA("WMA", this, 5, 13, q["date"])
-      this.strategiePortfolios["EMA"] = new EMA("EMA", this, 5, 13, q["date"])
-      this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this, q["date"])
+      //
+      // this.strategiePortfolios["WMA"] = new WMA("WMA", this, 5, 13, q["date"])
+      // this.strategiePortfolios["EMA"] = new EMA("EMA", this, 5, 13, q["date"])
+      // this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this, q["date"])
+      this.strategiePortfolios["LIMITS"] = new LIMITS("LIMITS", this, q["date"])
+      
     })
 
 
@@ -49,15 +52,10 @@ module.exports = class Handler {
   }
 
   manageRestrictions(restrictions){
-    console.log(restrictions);
     for (let strategy of Object.keys(restrictions)) {
-      console.log(strategy);
       for (var symbol of Object.keys(restrictions[strategy])) {
         this.strategiePortfolios[strategy].stockGroup[symbol].allowedToBuy = restrictions[strategy][symbol].allowedToBuy
         this.strategiePortfolios[strategy].stockGroup[symbol].allowedToSell = restrictions[strategy][symbol].allowedToSell
-        if(!(restrictions[strategy][symbol].allowedToBuy)){
-          console.log("STOP ON " + symbol);
-        }
       }
     }
   }
@@ -124,8 +122,6 @@ module.exports = class Handler {
             resolve(true)
             return
           }
-
-          console.log(q.date);
 
           // Update portfolio with new qoutes
           _this.strategiePortfolios[portfolioName].addNewQoute(q)

@@ -15,6 +15,9 @@ module.exports = class Strategy extends Portfolio{
       d[symbol].nr_owned = this.getNumberOfStock(symbol)
 
       if (this.shortTerm != undefined) {
+        if (this.shortTerm === -1) {
+          this.initLimits(symbol)
+        }
         d[symbol]._50 = this.calculateAverage(symbol, this.shortTerm)
       }
       if (this.longTerm != undefined) {
@@ -60,6 +63,8 @@ module.exports = class Strategy extends Portfolio{
     }
 
     for (let symbol of this.getSymbols()) {
+      console.log("In strategy Options:");
+      console.log({shortTerm: this.shortTerm, longTerm: this.longTerm});
       let decision = this.isABuy(symbol, {shortTerm: this.shortTerm, longTerm: this.longTerm})
 
       // let item = { symbol: symbol }
@@ -76,10 +81,10 @@ module.exports = class Strategy extends Portfolio{
 
       //this.logTrends(logObj) // THIS PRINTS TO SCREEN COMMENT ME OUT
       //if (shortTermAverage > longTermAverage) {
-      if (decision.isABuy) {
+      if (decision.isABuy === "BUY") {
         // Buy
         res.buy.push(decision)
-      } else {
+      } else if(decision.isABuy === "SELL") {
         // Sell
         res.sell.push(decision)
       }
