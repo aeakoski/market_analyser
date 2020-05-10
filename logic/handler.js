@@ -19,12 +19,15 @@ module.exports = class Handler {
       // this.strategiePortfolios["SMA_5-8"] = new SMA("SMA_5-8", this, 5, 8, q["date"])
       // this.strategiePortfolios["SMA_8-13"] = new SMA("SMA_8-13", this, 8, 13, q["date"])
       this.strategiePortfolios["SMA_5-13"] = new SMA("SMA_5-13", this, 5, 13, q["date"])
+      this.strategiePortfolios["SMA_50-100"] = new SMA("SMA_50-100", this, 50, 100, q["date"])
       //
       // this.strategiePortfolios["WMA"] = new WMA("WMA", this, 5, 13, q["date"])
       // this.strategiePortfolios["EMA"] = new EMA("EMA", this, 5, 13, q["date"])
       // this.strategiePortfolios["HOLD"] = new HOLD("HOLD", this, q["date"])
       this.strategiePortfolios["LIMITS"] = new LIMITS("LIMITS", this, q["date"])
-      
+
+      // Naive strategy, now it has gonedown enough ml on [11111000001100111110001100010111000]
+
     })
 
 

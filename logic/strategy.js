@@ -63,8 +63,8 @@ module.exports = class Strategy extends Portfolio{
     }
 
     for (let symbol of this.getSymbols()) {
-      console.log("In strategy Options:");
-      console.log({shortTerm: this.shortTerm, longTerm: this.longTerm});
+      // console.log("In strategy Options:");
+      // console.log({shortTerm: this.shortTerm, longTerm: this.longTerm});
       let decision = this.isABuy(symbol, {shortTerm: this.shortTerm, longTerm: this.longTerm})
 
       // let item = { symbol: symbol }

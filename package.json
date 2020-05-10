@@ -20,8 +20,10 @@
   },
   "homepage": "https://github.com/aeakoski/market_analyser#readme",
   "dependencies": {
+    "classify-series": "^0.3.2",
     "console-menu": "^0.1.0",
     "express": "^4.16.2",
+    "mathjs": "^6.6.5",
     "ml-regression-polynomial": "^2.1.0",
     "moment": "^2.24.0",
     "moving-averages": "^4.0.5",
