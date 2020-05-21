@@ -122,7 +122,7 @@ exports.sell = async function(sellList){
       if (prices[stock.symbol] === undefined) {
         returnsList.push(stock)
       } else {
-        returnPrice = returnPrice + parseFloat(prices[stock.symbol]["close"])*0.99
+        returnPrice = returnPrice + parseFloat(prices[stock.symbol]["close"])*0.995
       }
     }
   })
@@ -147,7 +147,7 @@ exports.buy = async function(buyList){
       let stockObj = {}
       stockObj.symbol = buyList.symbol
       // Get price
-      stockObj.price = parseFloat(prices[buyList.symbol]["close"]) * 1.01
+      stockObj.price = parseFloat(prices[buyList.symbol]["close"]) * 1.005
       // Get buydate
       //stockObj.buyDate = yesterday.format("YYYY-MM-DD")
       stockObj.buyDate = clock_now
