@@ -50,6 +50,7 @@ def main():
 
     ## Results
     print("Nr of datapoints: " + str(df.shape[0]))
+    ## Need to install sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
     df[['date','SMA_4', 'SMA_8', 'SMA_16', "close"]].plot()
     plt.show()
     print(df.head(30))
