@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import json
 import random
 import numpy as np
+from statsmodels.tsa.stattools import adfuller
 
 def computeRSI (data, time_window):
     diff = data.diff(1).dropna() # diff in one field(one day)
@@ -21,6 +22,15 @@ def computeRSI (data, time_window):
     rsi = 100 - 100/(1+rs)
     return rsi
 
+def printDickyFuller(df):
+    X = df.values
+    result = adfuller(X)
+    print('ADF Statistic: %f' % result[0])
+    print('p-value: %f' % result[1])
+    print('Critical Values:')
+    for key, value in result[4].items():
+    	print('\t%s: %.3f' % (key, value))
+
 
 def main():
 
@@ -33,6 +43,7 @@ def main():
         prices = json.loads(fd.read())
         # print(str(len(prices)) + " datapoints")
         df = pd.read_json("res.txt")
+        df.set_index("date")
 
     ## Add RSI Col
     df['rsi'] = computeRSI(df['close'], 14)
@@ -50,8 +61,12 @@ def main():
 
     ## Results
     print("Nr of datapoints: " + str(df.shape[0]))
+
+    printDickyFuller(df[["close"]])
+
+
     ## Need to install sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
-    df[['date','SMA_4', 'SMA_8', 'SMA_16', "close"]].plot()
+    df[['SMA_4', 'SMA_8', 'SMA_16', "close"]].plot()
     plt.show()
     print(df.head(30))
 
