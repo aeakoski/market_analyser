@@ -36,19 +36,29 @@ def dickyFuller(df):
 
 
 def dickeyFullerOnSlice(df, nrOfTests):
+    sliceSize = 15
     stationaryFindings = 0
     for i in range(nrOfTests):
-        endIndex = random.randint(20, df.shape[0])
-        startIndex = endIndex - 20
+        endIndex = random.randint(sliceSize, df.shape[0])
+        startIndex = endIndex - sliceSize
         intermediateDf = df[startIndex:endIndex]
 
         ## print(df[startIndex:endIndex])
 
         r = dickyFuller(intermediateDf[["close"]])
+        # If null hypothesis is rejeted, it should be rejected for the tiem series split in half aswell
         if r["p"] < 0.01:
-            stationaryFindings+=1
-            print("Indexes: " + str(startIndex) + ", " + str(endIndex) + ", p: " + str(round(r["p"], 4)))
-            plt.axvspan(startIndex, endIndex, color='y', alpha=0.1, lw=0)
+            low = intermediateDf[0 : int(intermediateDf.shape[0]/2)]
+            high = intermediateDf[int(intermediateDf.shape[0]/2) : intermediateDf.shape[0]]
+            r1 = dickyFuller(low[["close"]])
+            r2 = dickyFuller(high[["close"]])
+            #print("r1 - p:" + str(r1['p']))
+            #print("r2 - p:" + str(r2['p']))
+            #print("\n")
+            if r1['p'] < 0.01 or r2['p'] < 0.01:
+                stationaryFindings+=1
+                print("Indexes: " + str(startIndex) + ", " + str(endIndex) + ", p: " + str(round(r["p"], 4)))
+                plt.axvspan(startIndex, endIndex, color='y', alpha=0.1, lw=0)
     print("stationaryFindings: " + str(stationaryFindings) + " / " + str(nrOfTests))
 
 
@@ -87,7 +97,7 @@ def main():
     ## printDickyFuller(df[["close"]])
     fig = plt.figure()
 
-    dickeyFullerOnSlice(df, 300)
+    dickeyFullerOnSlice(df, 500)
 
 
     ## Need to install sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
