@@ -36,9 +36,9 @@ def dickyFuller(df):
 
 
 def dickeyFullerOnSlice(df, nrOfTests):
-    sliceSize = 15
     stationaryFindings = 0
     for i in range(nrOfTests):
+        sliceSize = random.randint(10, 15)
         endIndex = random.randint(sliceSize, df.shape[0])
         startIndex = endIndex - sliceSize
         intermediateDf = df[startIndex:endIndex]
@@ -48,17 +48,22 @@ def dickeyFullerOnSlice(df, nrOfTests):
         r = dickyFuller(intermediateDf[["close"]])
         # If null hypothesis is rejeted, it should be rejected for the tiem series split in half aswell
         if r["p"] < 0.01:
-            low = intermediateDf[0 : int(intermediateDf.shape[0]/2)]
-            high = intermediateDf[int(intermediateDf.shape[0]/2) : intermediateDf.shape[0]]
+            threshold = int(intermediateDf.shape[0]/2)
+            low = intermediateDf[0 : threshold]
+            high = intermediateDf[threshold : intermediateDf.shape[0]]
             r1 = dickyFuller(low[["close"]])
             r2 = dickyFuller(high[["close"]])
             #print("r1 - p:" + str(r1['p']))
             #print("r2 - p:" + str(r2['p']))
             #print("\n")
-            if r1['p'] < 0.01 or r2['p'] < 0.01:
-                stationaryFindings+=1
-                print("Indexes: " + str(startIndex) + ", " + str(endIndex) + ", p: " + str(round(r["p"], 4)))
-                plt.axvspan(startIndex, endIndex, color='y', alpha=0.1, lw=0)
+
+            stationaryFindings+=1
+            if r1['p'] < r['p']:
+                print("Indexes: " + str(startIndex) + ", " + str(startIndex + threshold) + ", p: " + str(round(r["p"], 4)))
+                plt.axvspan(startIndex, startIndex + threshold, color='y', alpha=0.1, lw=0)
+            if r2['p'] < r['p']:
+                print("Indexes: " + str(startIndex + threshold) + ", " + str(endIndex) + ", p: " + str(round(r["p"], 4)))
+                plt.axvspan(startIndex + threshold, endIndex, color='y', alpha=0.1, lw=0)
     print("stationaryFindings: " + str(stationaryFindings) + " / " + str(nrOfTests))
 
 
@@ -97,7 +102,7 @@ def main():
     ## printDickyFuller(df[["close"]])
     fig = plt.figure()
 
-    dickeyFullerOnSlice(df, 500)
+    dickeyFullerOnSlice(df, 2000)
 
 
     ## Need to install sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
