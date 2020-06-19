@@ -30,6 +30,7 @@
     "node-fetch": "^2.6.0",
     "nodeplotlib": "^0.6.5",
     "regression": "^2.0.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "technicalindicators": "^3.1.0"
   }
 }

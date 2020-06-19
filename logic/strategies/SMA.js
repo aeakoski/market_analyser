@@ -12,7 +12,7 @@ module.exports = class SMA extends Strategy{
     this.longTerm = longTerm
     this.ongoingTrade = {}
     this.trendIsUsed = false
-
+    this.stopLoss = -1
   }
 
   isABuy(symbol, options){
@@ -32,7 +32,7 @@ module.exports = class SMA extends Strategy{
     let longTermAverage = list200[list200.length-1].value
 
     if (shortTermAverage < longTermAverage) {
-      console.log("Resetting trend");
+      //console.log("Resetting trend");
       this.trendIsUsed = false
     }
 
@@ -44,7 +44,7 @@ module.exports = class SMA extends Strategy{
     //
     if (this.ongoingTrade[symbol].long && (this.ongoingTrade[symbol].boughtAt*1.01 < todaysPrice)) {
       //this.ongoingTrade = false
-      console.log("Im happy, pulling out");
+      //console.log("Im happy, pulling out");
       this.ongoingTrade[symbol].long = false
       return {isABuy:"SELL", strength:1, symbol:symbol}
     }
@@ -68,11 +68,11 @@ module.exports = class SMA extends Strategy{
     // HOLD TRIGGERS //
     //---------------//
     if (this.ongoingTrade[symbol].long) {
-      console.log("Holding, has ongoing trade already...");
+      //console.log("Holding, has ongoing trade already...");
       return {isABuy:"HOLD", strength:1, symbol:symbol}
     }
     if (this.trendIsUsed) {
-      console.log("Not allowed to buy, trend used");
+      //console.log("Not allowed to buy, trend used");
       return {isABuy:"HOLD", strength:1, symbol:symbol}
     }
 
@@ -90,18 +90,20 @@ module.exports = class SMA extends Strategy{
     // IF THE SHORT TERM AND LONG TERM ARE GROWING POSITIVLEY, OK TO BUY
     //
     if (!((0 < list50[list50.length-1].value - list50[list50.length-2].value) && (0 < list200[list200.length-1].value - list200[list200.length-2].value))) {
-      console.log("Negative derivitive. Short term, long term");
-      console.log(list50[list50.length-2].value);
-      console.log(list50[list50.length-1].value);
-      console.log(list200[list200.length-2].value);
-      console.log(list200[list200.length-1].value);
+      // console.log("Negative derivitive. Short term, long term");
+      // console.log(list50[list50.length-2].value);
+      // console.log(list50[list50.length-1].value);
+      // console.log(list200[list200.length-2].value);
+      // console.log(list200[list200.length-1].value);
       return {isABuy:"HOLD", strength:1, symbol:symbol}
     }
 
     this.ongoingTrade[symbol].long = true
     this.ongoingTrade[symbol].boughtAt = todaysPrice
     this.trendIsUsed = true
-    console.log("Trade aim: " + todaysPrice + " -> " + todaysPrice*1.01);
+    this.stopLoss = todaysPrice * (1.00-0.02)
+
+    //console.log("Trade aim: " + todaysPrice + " -> " + todaysPrice*1.01);
     return {isABuy:"BUY", strength:(shortTermAverage - longTermAverage), symbol:symbol}
 
 
