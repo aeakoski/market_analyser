@@ -1,0 +1,1 @@
+# Joel Greenblatt Magiska formeln
