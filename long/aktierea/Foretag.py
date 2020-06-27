@@ -25,11 +25,21 @@ class Foretag:
         soup = BeautifulSoup(html.text.replace(u'\xa0', u' '), features='html.parser')
         elem = soup.findAll('dl', {'class': 'border XSText rightAlignText noMarginTop highlightOnHover thickBorderBottom noTopBorder'})
 
-        vanster_rubrik = elem[0].findAll('dt')
-        vanster_data = elem[0].findAll('dd')
+        try:
+            vanster_rubrik = elem[0].findAll('dt')
+            vanster_data = elem[0].findAll('dd')
 
-        hoger_rubrik = elem[1].findAll('dt')
-        hoger_data = elem[1].findAll('dd')
+            hoger_rubrik = elem[1].findAll('dt')
+            hoger_data = elem[1].findAll('dd')
+        except IndexError as e:
+            print("Exeption!!!!!")
+            print(elem)
+            print(self.link)
+            #print(html.text)
+            print(e)
+
+
+
 
         assert len(vanster_rubrik) == len(vanster_data), "Left column w/ values are ot parsed correctly"
         assert len(hoger_rubrik) == len(hoger_data), "Right column w/ values are ot parsed correctly"

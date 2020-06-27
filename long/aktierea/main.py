@@ -1,4 +1,4 @@
-from aktierea.Foretag import Foretag
+from Foretag import Foretag
 from csv import DictReader
 
 foretag = []
@@ -86,7 +86,7 @@ Där efter sorteras alla bolag och kolumner i dessa tjugo
 bolagen efter Direktavkastningen så att de bolag med högsta
 värdet kommer högst upp.
 """
-foretag.sort(key=lambda f: f.direktavkastning, reverse=True)
+foretag.sort(key=lambda f: (f.direktavkastning, f.kolumn_A_plus_B), reverse=True)
 
 
 """
@@ -125,6 +125,8 @@ for f in forlorare_2:
 print("")
 print("Vinnare!!!!")
 print("")
+print("namn" + "\t" + str("branch") + "\t" + str("direktavkastning") + "\t" + str("kolumn_A") + "\t" + str("kolumn_B") + "\t" + str("kolumn_A_plus_B"))
+
 
 for i in foretag:
     print(i)
