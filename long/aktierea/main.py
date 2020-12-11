@@ -1,22 +1,34 @@
-from aktierea.Foretag import Foretag
+from Foretag import Foretag
 from csv import DictReader
 
 foretag = []
 
+"""
+Nu finns det några undantag men huvudregeln är ta bort alla A-aktier
+och behåll B-aktierna om det finns flera aktieslag under samma
+bolagsnamn. Du ska vid analysen bara ha med ett aktieslag för varje
+bolag.
+"""
+csv_reader = None
 with open('foretag2.csv', mode='r') as csv_file:
         csv_reader = DictReader(csv_file, delimiter=",")
-        for rad in csv_reader:
-            print(rad['Länk'])
-
-            foretag.append(Foretag(rad['Länk']))
 
 
-url = "https://www.avanza.se/aktier/om-aktien.html/5447/abb-ltd"
+for rad in csv_reader:
+    print(rad['Länk'])
+    try:
+        f = Foretag(rad['Länk'])
+        f.populeraData()
+        f.verifiera_all_data_hittad()
+        foretag.append(f)
+    except Exception as e:
+        print("ERROR")
+        print(e)
 
-for f in foretag:
-    f.populeraData()
-    f.verifiera_all_data_hittad()
-    print("Verifikation klar!")
+
+
+
+#url = "https://www.avanza.se/aktier/om-aktien.html/5447/abb-ltd"
 
 """
 Sedan brukar jag rensa bort alla bolag som redovisat negativ
@@ -126,5 +138,6 @@ print("")
 print("Vinnare!!!!")
 print("")
 
+print("Namn\tBranch\tDirr.avk\tA\tB\tA+B")
 for i in foretag:
     print(i)
